@@ -1,0 +1,493 @@
+// Incidents Container
+.incidents-container {
+  padding: 1.5rem;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+// Filter Section Styles
+.filter-section {
+  .filter-header {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+  }
+  
+  .filter-form {
+    .filter-group {
+      transition: all 0.3s ease;
+      
+      &:focus-within {
+        transform: translateY(-1px);
+      }
+    }
+  }
+  
+  .filter-actions {
+    .p-button {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+}
+
+// Modern Dialog Styles
+:host ::ng-deep {
+  .modern-dialog {
+    .p-dialog-header {
+      background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+      color: white;
+      border-radius: 12px 12px 0 0;
+      
+      .p-dialog-title {
+        color: white;
+        font-weight: 600;
+      }
+      
+      .p-dialog-header-icon {
+        color: white;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+    
+    .p-dialog-content {
+      padding: 1.5rem;
+      border-radius: 0 0 12px 12px;
+    }
+    
+    .p-dialog-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 0 0 12px 12px;
+    }
+  }
+  
+  // File Upload Styles
+  .p-fileupload {
+    .p-fileupload-content {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        border-color: #dc2626;
+        background: #fef2f2;
+      }
+    }
+    
+    .p-fileupload-buttonbar {
+      background: transparent;
+      border: none;
+      padding: 0;
+      
+      .p-button {
+        background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+      }
+    }
+  }
+  
+  // Table Styles
+  .p-datatable {
+    .p-datatable-header {
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+    
+    .p-datatable-thead > tr > th {
+      background: linear-gradient(135deg, #fef2f2 0%, #fed7d7 100%);
+      border: none;
+      font-weight: 600;
+      color: #374151;
+      padding: 1rem;
+      
+      &:first-child {
+        border-radius: 8px 0 0 8px;
+      }
+      
+      &:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+    }
+    
+    .p-datatable-tbody > tr {
+      border-bottom: 1px solid #f1f5f9;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: #fef2f2;
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    
+    .p-datatable-tbody > tr > td {
+      border: none;
+      padding: 1rem;
+      vertical-align: middle;
+    }
+  }
+  
+  // Dropdown Styles
+  .p-dropdown {
+    .p-dropdown-trigger {
+      color: #6b7280;
+    }
+    
+    &.p-focus {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+    }
+  }
+  
+  // Custom Native Date Input Styles
+  .custom-date-input {
+    // Hide default calendar icon
+    &::-webkit-calendar-picker-indicator {
+      background: transparent;
+      bottom: 0;
+      color: transparent;
+      cursor: pointer;
+      height: auto;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: auto;
+    }
+
+    // Firefox specific styling
+    &::-moz-calendar-picker-indicator {
+      background: transparent;
+      border: none;
+      color: transparent;
+      cursor: pointer;
+      height: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+    }
+
+    // Edge specific styling
+    &::-ms-clear,
+    &::-ms-expand {
+      display: none;
+    }
+
+    // Custom focus styles
+    &:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+      background-color: #ffffff;
+    }
+
+    // Hover effect
+    &:hover {
+      border-color: #9ca3af;
+      background-color: #f9fafb;
+    }
+
+    // Placeholder styling
+    &::placeholder {
+      color: #9ca3af;
+      opacity: 1;
+    }
+
+    // Value styling
+    &:not(:placeholder-shown) {
+      color: #374151;
+      font-weight: 500;
+    }
+
+    // Disabled state
+    &:disabled {
+      background-color: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    // Invalid state
+    &.ng-invalid.ng-touched {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+    }
+
+    // Valid state
+    &.ng-valid.ng-touched {
+      border-color: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+    }
+  }
+
+  // Date input container styling
+  .relative {
+    .custom-date-input {
+      padding-right: 2.5rem; // Make room for the calendar icon
+    }
+
+    // Calendar icon styling
+    .pi-calendar {
+      transition: all 0.2s ease;
+    }
+
+    // Icon color change on focus
+    .custom-date-input:focus + .pi-calendar {
+      color: #dc2626;
+    }
+
+    // Icon color change on hover
+    .custom-date-input:hover + .pi-calendar {
+      color: #6b7280;
+    }
+  }
+  
+  // Button Styles
+  .p-button {
+    &.p-button-primary {
+      background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+      border: none;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+      
+      &:disabled {
+        background: #9ca3af;
+        transform: none;
+        box-shadow: none;
+      }
+    }
+    
+    &.p-button-outlined {
+      border: 2px solid #d1d5db;
+      color: #374151;
+      background: transparent;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        border-color: #dc2626;
+        color: #dc2626;
+        background: #fef2f2;
+      }
+    }
+    
+    &.p-button-text {
+      background: transparent;
+      border: none;
+      color: #6b7280;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: #f3f4f6;
+        color: #374151;
+      }
+      
+      &.p-button-primary:hover {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      
+      &.p-button-danger:hover {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+    }
+  }
+  
+  // Tag Styles
+  .p-tag {
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  
+  // Toast Styles
+  .p-toast {
+    .p-toast-message {
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      
+      &.p-toast-message-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+      }
+      
+      &.p-toast-message-error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+      }
+      
+      &.p-toast-message-info {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+      }
+      
+      &.p-toast-message-warn {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border: none;
+      }
+    }
+  }
+  
+  // Confirm Dialog Styles
+  .p-confirmdialog {
+    .p-dialog {
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .p-dialog-header {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border-radius: 12px 12px 0 0;
+      
+      .p-dialog-title {
+        color: white;
+        font-weight: 600;
+      }
+    }
+    
+    .p-dialog-content {
+      padding: 1.5rem;
+      border-radius: 0 0 12px 12px;
+    }
+    
+    .p-dialog-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 0 0 12px 12px;
+    }
+  }
+  
+  // File Gallery Dialog Styles
+  .file-gallery-dialog {
+    .p-dialog-header {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: white;
+      border-radius: 12px 12px 0 0;
+      
+      .p-dialog-title {
+        color: white;
+        font-weight: 600;
+      }
+      
+      .p-dialog-header-icon {
+        color: white;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+    
+    .p-dialog-content {
+      padding: 0;
+      border-radius: 0 0 12px 12px;
+      background: #000;
+      overflow: hidden;
+    }
+    
+    .p-dialog-footer {
+      display: none;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .incidents-container {
+    padding: 1rem;
+    
+    .bg-white {
+      .p-6 {
+        padding: 1rem;
+      }
+      
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+  }
+  
+  :host ::ng-deep {
+    .p-datatable {
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+    
+    .modern-dialog {
+      .p-dialog-content {
+        padding: 1rem;
+      }
+      
+      .p-dialog-footer {
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    // Mobile date input improvements
+    .custom-date-input {
+      font-size: 16px; // Prevent zoom on iOS
+      padding: 0.875rem 0.75rem;
+      
+      &::-webkit-calendar-picker-indicator {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    // Mobile calendar icon positioning
+    .relative .pi-calendar {
+      right: 0.75rem;
+      font-size: 1rem;
+    }
+  }
+} 

@@ -1,0 +1,550 @@
+<div class="min-h-screen bg-gray-50 p-4 lg:p-6">
+  <!-- Header Section -->
+  <div class="w-full max-w-none lg:max-w-8xl lg:mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Vehicles Management</h1>
+          <p class="text-gray-600 mt-1">Manage your fleet of vehicles with advanced filtering and image support</p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <!-- View Mode Toggle -->
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <button 
+              (click)="viewMode = 'grid'" 
+              [class]="viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200">
+              <i class="pi pi-th-large mr-2"></i>Grid
+            </button>
+            <button 
+              (click)="viewMode = 'table'" 
+              [class]="viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200">
+              <i class="pi pi-table mr-2"></i>Table
+            </button>
+          </div>
+
+          <!-- Filter Toggle -->
+          <button 
+            (click)="showFilters = !showFilters"
+            [class]="showFilters ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+            <i class="pi pi-filter"></i>
+            Filters
+            <span *ngIf="filterCount > 0" class="bg-white text-blue-600 text-xs px-2 py-1 rounded-full font-bold">
+              {{ filterCount }}
+            </span>
+          </button>
+
+          <!-- Add Vehicle Button -->
+          <button 
+            (click)="showAddEditDialog()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+            <i class="pi pi-plus"></i>
+            Add Vehicle
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div *ngIf="showFilters" class="mt-6 pt-6 border-t border-gray-200">
+        <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <!-- Type Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Type</label>
+            <p-dropdown
+              formControlName="type"
+              [options]="allTypeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Type"
+              styleClass="w-full"
+              class="w-full">
+            </p-dropdown>
+          </div>
+
+          <!-- Availability Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+            <p-dropdown
+              formControlName="availability"
+              [options]="availabilityOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Availability"
+              styleClass="w-full"
+              class="w-full">
+            </p-dropdown>
+          </div>
+
+          <!-- License Plate Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">License Plate</label>
+            <input 
+              pInputText 
+              type="text" 
+              formControlName="licensePlate"
+              placeholder="Search license plate..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Min Capacity Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Min Capacity</label>
+            <input 
+              pInputText 
+              type="number" 
+              formControlName="minCapacity"
+              placeholder="Min capacity..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Max Capacity Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Max Capacity</label>
+            <input 
+              pInputText 
+              type="number" 
+              formControlName="maxCapacity"
+              placeholder="Max capacity..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Filter Actions -->
+          <div class="sm:col-span-2 lg:col-span-3 xl:col-span-5 flex items-center gap-3 pt-2">
+            <button 
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+              Apply Filters
+            </button>
+            <button 
+              type="button"
+              (click)="clearFilters()"
+              class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+              Clear All
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex items-center justify-center py-12">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-spin pi-spinner text-2xl text-blue-600"></i>
+          <span class="text-gray-600">Loading vehicles...</span>
+        </div>
+      </div>
+
+      <!-- Grid View -->
+      <div *ngIf="!loading && viewMode === 'grid'" class="p-6">
+        <div *ngIf="vehicles.length === 0" class="text-center py-12">
+          <i class="pi pi-car text-4xl text-gray-300 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
+          <p class="text-gray-600">Get started by adding your first vehicle.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-4 lg:gap-6">
+          <div *ngFor="let vehicle of vehicles" class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200">
+            <!-- Vehicle Image -->
+            <div class="relative h-48 bg-gray-100">
+              <img 
+                *ngIf="vehicle.photoUrls && vehicle.photoUrls.length > 0"
+                [src]="getImageUrl(vehicle.photoUrls[0])"
+                [alt]="vehicle.licensePlate"
+                class="w-full h-full object-cover cursor-pointer"
+                (click)="showImageGallery(vehicle, 0)">
+              
+              <div *ngIf="!vehicle.photoUrls || vehicle.photoUrls.length === 0" 
+                   class="w-full h-full flex items-center justify-center">
+                <i class="pi pi-car text-4xl text-gray-400"></i>
+              </div>
+
+              <!-- Image Count Badge -->
+              <div *ngIf="vehicle.photoUrls && vehicle.photoUrls.length > 1" 
+                   class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
+                +{{ vehicle.photoUrls.length - 1 }}
+              </div>
+
+              <!-- Availability Badge -->
+              <div class="absolute top-2 left-2">
+                <span [class]="getAvailabilityBadgeClass(vehicle.availability) + ' text-xs px-2 py-1 rounded-full border'">
+                  {{ vehicle.availability ? 'Available' : 'Unavailable' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Vehicle Info -->
+            <div class="p-4">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <h3 class="font-semibold text-gray-900 text-lg">{{ vehicle.licensePlate }}</h3>
+                  <span [class]="getVehicleTypeBadgeClass(vehicle.type) + ' text-xs px-2 py-1 rounded-full border mt-1 inline-block'">
+                    {{ getVehicleTypeLabel(vehicle.type) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-weight-hanging text-gray-400"></i>
+                  <span>Capacity: {{ vehicle.maxCapacity }} kg</span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                <button 
+                  (click)="showAddEditDialog(vehicle)"
+                  class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                  <i class="pi pi-pencil mr-1"></i>Edit
+                </button>
+                <button 
+                  (click)="confirmDelete(vehicle)"
+                  class="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                  <i class="pi pi-trash mr-1"></i>Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table View -->
+      <div *ngIf="!loading && viewMode === 'table'">
+        <p-table 
+          [value]="vehicles" 
+          [paginator]="false" 
+          [rows]="10" 
+          [scrollable]="true" 
+          scrollHeight="600px"
+          [loading]="loading" 
+          sortMode="multiple" 
+          styleClass="p-datatable-striped p-datatable-sm" 
+          responsiveLayout="scroll"
+          (onSort)="onSort($event)">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 80px">Image</th>
+              <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
+              <th pSortableColumn="licensePlate">License Plate <p-sortIcon field="licensePlate"></p-sortIcon></th>
+              <th pSortableColumn="availability">Availability <p-sortIcon field="availability"></p-sortIcon></th>
+              <th pSortableColumn="maxCapacity">Max Capacity <p-sortIcon field="maxCapacity"></p-sortIcon></th>
+              <th style="width: 120px">Actions</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-vehicle>
+            <tr>
+              <td>
+                <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 cursor-pointer" 
+                     (click)="showImageGallery(vehicle, 0)">
+                  <img 
+                    *ngIf="vehicle.photoUrls && vehicle.photoUrls.length > 0"
+                    [src]="getImageUrl(vehicle.photoUrls[0])"
+                    [alt]="vehicle.licensePlate"
+                    class="w-full h-full object-cover">
+                  <div *ngIf="!vehicle.photoUrls || vehicle.photoUrls.length === 0" 
+                       class="w-full h-full flex items-center justify-center">
+                    <i class="pi pi-car text-gray-400"></i>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span [class]="getVehicleTypeBadgeClass(vehicle.type) + ' text-xs px-2 py-1 rounded-full border'">
+                  {{ getVehicleTypeLabel(vehicle.type) }}
+                </span>
+              </td>
+              <td class="font-medium">{{ vehicle.licensePlate }}</td>
+              <td>
+                <span [class]="getAvailabilityBadgeClass(vehicle.availability) + ' text-xs px-2 py-1 rounded-full border'">
+                  {{ vehicle.availability ? 'Available' : 'Unavailable' }}
+                </span>
+              </td>
+              <td>{{ vehicle.maxCapacity }} kg</td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <button 
+                    pButton 
+                    icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-sm p-button-info"
+                    (click)="showAddEditDialog(vehicle)">
+                  </button>
+                  <button 
+                    pButton 
+                    icon="pi pi-trash" 
+                    class="p-button-rounded p-button-sm p-button-danger"
+                    (click)="confirmDelete(vehicle)">
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center py-12">
+                <i class="pi pi-car text-4xl text-gray-300 mb-4 block"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
+                <p class="text-gray-600">Get started by adding your first vehicle.</p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!loading && vehicles.length > 0" class="p-4 border-t border-gray-200">
+        <p-paginator 
+          [rows]="pageSize" 
+          [totalRecords]="totalRecords" 
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          (onPageChange)="onPageChange($event)">
+        </p-paginator>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Vehicle Dialog -->
+<p-dialog 
+  [(visible)]="displayDialog" 
+  [modal]="true" 
+  [closable]="true" 
+  [style]="{ width: '600px' }" 
+  [draggable]="false"
+  header="{{ isEditing ? 'Edit Vehicle' : 'Add Vehicle' }}"
+  styleClass="p-dialog-lg">
+  
+  <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Vehicle Type -->
+    <div>
+      <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Vehicle Type *</label>
+      <p-dropdown
+        id="type"
+        formControlName="type"
+        [options]="VehicleTypeOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select a Type"
+        styleClass="w-full"
+        class="w-full"
+        [class.p-invalid]="vehicleForm.get('type')?.invalid && vehicleForm.get('type')?.touched">
+      </p-dropdown>
+      <small class="p-error text-sm" *ngIf="getFieldError('type')">
+        {{ getFieldError('type') }}
+      </small>
+    </div>
+
+    <!-- License Plate -->
+    <div>
+      <label for="licensePlate" class="block text-sm font-medium text-gray-700 mb-2">License Plate *</label>
+      <input 
+        pInputText 
+        id="licensePlate" 
+        type="text" 
+        formControlName="licensePlate" 
+        autofocus
+        placeholder="Enter license plate..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="vehicleForm.get('licensePlate')?.invalid && vehicleForm.get('licensePlate')?.touched" />
+      <small class="p-error text-sm" *ngIf="getFieldError('licensePlate')">
+        {{ getFieldError('licensePlate') }}
+      </small>
+    </div>
+
+    <!-- Availability -->
+    <div>
+      <label for="availability" class="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+      <p-dropdown 
+        id="availability"
+        [options]="[{label: 'Available', value: true}, {label: 'Unavailable', value: false}]"
+        formControlName="availability" 
+        optionLabel="label" 
+        optionValue="value" 
+        placeholder="Select Availability"
+        styleClass="w-full" 
+        class="w-full"
+        [class.p-invalid]="vehicleForm.get('availability')?.invalid && vehicleForm.get('availability')?.touched">
+      </p-dropdown>
+      <small class="p-error text-sm" *ngIf="getFieldError('availability')">
+        {{ getFieldError('availability') }}
+      </small>
+    </div>
+
+    <!-- Max Capacity -->
+    <div>
+      <label for="maxCapacity" class="block text-sm font-medium text-gray-700 mb-2">Max Capacity (kg) *</label>
+      <input 
+        pInputText 
+        id="maxCapacity" 
+        type="number" 
+        formControlName="maxCapacity"
+        placeholder="Enter max capacity..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="vehicleForm.get('maxCapacity')?.invalid && vehicleForm.get('maxCapacity')?.touched" />
+      <small class="p-error text-sm" *ngIf="getFieldError('maxCapacity')">
+        {{ getFieldError('maxCapacity') }}
+      </small>
+    </div>
+
+    <!-- Photo Upload Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Photos</label>
+      
+      <!-- Existing Photos (Edit Mode) -->
+      <div *ngIf="isEditing && existingPhotos.length > 0" class="mb-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">Existing Photos</h4>
+        <div class="grid grid-cols-3 gap-3">
+          <div *ngFor="let photo of existingPhotos; let i = index" class="relative">
+            <img [src]="getImageUrl(photo)" [alt]="'Photo ' + (i + 1)" 
+                 class="w-full h-24 object-cover rounded-lg border-2"
+                 [class.border-blue-500]="photosToKeep.includes(photo)"
+                 [class.border-gray-200]="!photosToKeep.includes(photo)">
+            
+            <div class="absolute top-1 right-1 flex gap-1">
+              <button 
+                *ngIf="!photosToKeep.includes(photo)"
+                type="button"
+                (click)="addExistingPhoto(photo)"
+                class="bg-green-500 text-white p-1 rounded-full text-xs hover:bg-green-600">
+                <i class="pi pi-plus"></i>
+              </button>
+              <button 
+                *ngIf="photosToKeep.includes(photo)"
+                type="button"
+                (click)="removeExistingPhoto(photo)"
+                class="bg-red-500 text-white p-1 rounded-full text-xs hover:bg-red-600">
+                <i class="pi pi-minus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Photo Upload -->
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <p-fileUpload 
+          #fileUpload
+          [multiple]="true" 
+          accept="image/*" 
+          [maxFileSize]="5242880"
+          [customUpload]="true"
+          (onSelect)="onFileSelect($event)"
+          chooseLabel="Choose Photos"
+          cancelLabel="Cancel"
+          styleClass="w-full">
+        </p-fileUpload>
+        <p class="text-xs text-gray-500 mt-2">Maximum 10 photos, 5MB each. Supported formats: JPG, PNG, GIF, WebP</p>
+      </div>
+
+      <!-- Selected Photos Preview -->
+      <div *ngIf="selectedPhotos.length > 0" class="mt-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Photos ({{ selectedPhotos.length }})</h4>
+        <div class="grid grid-cols-3 gap-3">
+          <div *ngFor="let photo of selectedPhotos; let i = index" class="relative">
+            <img [src]="getPhotoPreviewUrl(photo)" [alt]="'Selected photo ' + (i + 1)" 
+                 class="w-full h-24 object-cover rounded-lg">
+            <button 
+              type="button"
+              (click)="removeSelectedPhoto(i)"
+              class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full text-xs hover:bg-red-600">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Photos Count -->
+      <div *ngIf="totalPhotos > 0" class="mt-2 text-sm text-gray-600">
+        Total photos: {{ totalPhotos }} / 10
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-times" 
+        label="Cancel"
+        class="p-button-outlined p-button-secondary"
+        (click)="displayDialog = false">
+      </button>
+      <button 
+        pButton 
+        type="submit" 
+        icon="pi pi-check" 
+        [label]="isEditing ? 'Update Vehicle' : 'Create Vehicle'"
+        class="p-button-primary"
+        [disabled]="loading || vehicleForm.invalid">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Image Gallery Dialog -->
+<p-dialog 
+  [(visible)]="displayImageDialog" 
+  [modal]="true" 
+  [closable]="true" 
+  [style]="{ width: '800px' }" 
+  [draggable]="false"
+  header="Vehicle Photos"
+  styleClass="p-dialog-lg">
+  
+  <div *ngIf="selectedVehicle && selectedVehicle.photoUrls && selectedVehicle.photoUrls.length > 0" class="space-y-4">
+    <!-- Main Image -->
+    <div class="relative">
+      <img [src]="getImageUrl(selectedVehicle.photoUrls[selectedImageIndex])" 
+           [alt]="'Photo ' + (selectedImageIndex + 1)"
+           class="w-full h-96 object-cover rounded-lg">
+      
+      <!-- Navigation Buttons -->
+      <button 
+        *ngIf="selectedVehicle.photoUrls.length > 1"
+        (click)="previousImage()"
+        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all duration-200">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+      
+      <button 
+        *ngIf="selectedVehicle.photoUrls.length > 1"
+        (click)="nextImage()"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all duration-200">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+
+      <!-- Image Counter -->
+      <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+        {{ selectedImageIndex + 1 }} / {{ selectedVehicle.photoUrls.length }}
+      </div>
+    </div>
+
+    <!-- Thumbnail Navigation -->
+    <div *ngIf="selectedVehicle.photoUrls.length > 1" class="flex gap-2 overflow-x-auto">
+      <img *ngFor="let photo of selectedVehicle.photoUrls; let i = index"
+           [src]="getImageUrl(photo)"
+           [alt]="'Thumbnail ' + (i + 1)"
+           [class]="i === selectedImageIndex ? 'border-2 border-blue-500' : 'border-2 border-gray-200'"
+           class="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-all duration-200"
+           (click)="selectedImageIndex = i">
+    </div>
+  </div>
+
+  <div *ngIf="!selectedVehicle || !selectedVehicle.photoUrls || selectedVehicle.photoUrls.length === 0" 
+       class="text-center py-12">
+    <i class="pi pi-image text-4xl text-gray-300 mb-4"></i>
+    <p class="text-gray-600">No photos available for this vehicle.</p>
+  </div>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>

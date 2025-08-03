@@ -1,0 +1,208 @@
+<div class="users-management-container ">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Tailwind Card -->
+  <div class="bg-white rounded-2xl shadow-xl p-3 border border-gray-200">
+    <!-- Card Header -->
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-2xl font-bold text-gray-800">Users Management</h2>
+      <button pButton icon="pi pi-plus" label="Add User"
+        class="p-button p-3 text-sm p-button-primary p-button-sm px-4 py-2" (click)="showAddEditDialog()"></button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <p-table [value]="users" [paginator]="false" [rows]="10" [scrollable]="true" scrollHeight="600px"
+        [loading]="loading" sortMode="multiple" styleClass="p-datatable-striped p-datatable-sm"
+        responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr class="bg-gray-100 text-sm text-gray-700">
+            <th pSortableColumn="firstName" class="py-3 px-4">
+              First Name
+              <p-sortIcon field="firstName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="lastName" class="py-3 px-4">
+              Last Name
+              <p-sortIcon field="lastName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="email" class="py-3 px-4">
+              Email
+              <p-sortIcon field="email"></p-sortIcon>
+            </th>
+            <th pSortableColumn="phone" class="py-3 px-4">
+              Phone
+              <p-sortIcon field="phone"></p-sortIcon>
+            </th>
+            <th pSortableColumn="role" class="py-3 px-4">
+              Role
+              <p-sortIcon field="role"></p-sortIcon>
+            </th>
+            <th pSortableColumn="currentDriverStatus" class="py-3 px-4">
+              Driver Status
+              <p-sortIcon field="currentDriverStatus"></p-sortIcon>
+            </th>
+            <th class="py-3 px-4 text-center" style="width: 120px">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-user>
+          <tr class="text-sm hover:bg-gray-50 transition">
+            <td class="py-2 px-3">{{ user.firstName }}</td>
+            <td class="py-2 px-3">{{ user.lastName }}</td>
+            <td class="py-2 px-3">{{ user.email }}</td>
+            <td class="py-2 px-3">{{ user.phone }}</td>
+            <td class="py-2 px-3">
+              <span class="inline-block text-xs font-medium px-2 py-1 rounded bg-blue-100 text-blue-700 capitalize">
+                {{ user.role }}
+              </span>
+            </td>
+            <td class="py-2 px-3">
+              <span class="inline-block text-xs font-medium px-2 py-1 rounded bg-green-100 text-green-700 capitalize">
+                {{ getDriverStatusLabel(user.currentDriverStatus) }}
+              </span>
+            </td>
+
+            <td class="py-2 px-3">
+              <div class="flex justify-center gap-2">
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm p-button-success"
+                  (click)="showAddEditDialog(user)">
+                </button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                  (click)="confirmDelete(user)">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center py-6 text-gray-500">
+              <i class="pi pi-info-circle mr-2 text-lg"></i>
+              No users found.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+
+    <!-- Pagination -->
+    <div>
+      <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" [rowsPerPageOptions]="[5, 10, 25, 50]"
+        (onPageChange)="onPageChange($event)"></p-paginator>
+    </div>
+  </div>
+
+  <!-- Add/Edit User Dialog -->
+  <p-dialog header="{{ isEditing ? 'Edit User' : 'Add New User' }}" [(visible)]="displayDialog"
+    [style]="{ width: '800px' }" [modal]="true" class="bg-white rounded-2xl shadow-2xl"
+    [breakpoints]="{ '960px': '95vw', '640px': '100vw' }"
+    [closable]="true"
+    [draggable]="false">
+    <form [formGroup]="userForm" (ngSubmit)="onSubmitUser()" class="p-fluid p-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- First Name -->
+        <div>
+          <label for="firstName" class="block mb-2 text-sm font-semibold text-gray-700">First Name</label>
+          <input pInputText id="firstName" formControlName="firstName"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+            placeholder="Enter first name" />
+          <small *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
+            class="p-error text-red-500 text-xs mt-1">
+            {{ getFieldError('firstName') }}
+          </small>
+        </div>
+
+        <!-- Last Name -->
+        <div>
+          <label for="lastName" class="block mb-2 text-sm font-semibold text-gray-700">Last Name</label>
+          <input pInputText id="lastName" formControlName="lastName"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+            placeholder="Enter last name" />
+          <small *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
+            class="p-error text-red-500 text-xs mt-1">
+            {{ getFieldError('lastName') }}
+          </small>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block mb-2 text-sm font-semibold text-gray-700">Email</label>
+          <input pInputText id="email" formControlName="email"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+            placeholder="Enter email" />
+          <small *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+            class="p-error text-red-500 text-xs mt-1">
+            {{ getFieldError('email') }}
+          </small>
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label for="phone" class="block mb-2 text-sm font-semibold text-gray-700">Phone</label>
+          <input pInputText id="phone" formControlName="phone"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+            placeholder="Enter phone number" />
+          <small *ngIf="userForm.get('phone')?.invalid && userForm.get('phone')?.touched"
+            class="p-error text-red-500 text-xs mt-1">
+            {{ getFieldError('phone') }}
+          </small>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block mb-2 text-sm font-semibold text-gray-700">
+            {{ isEditing ? 'New Password (optional)' : 'Password' }}
+          </label>
+          <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true"
+            [placeholder]="isEditing ? 'Enter new password (optional)' : 'Enter password'" styleClass="w-full"
+            class="w-full"
+            inputStyleClass="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"></p-password>
+          <small *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched"
+            class="p-error text-red-500 text-xs mt-1">
+            {{ getFieldError('password') }}
+          </small>
+        </div>
+
+        <!-- Role -->
+        <div>
+          <label for="role" class="block mb-2 text-sm font-semibold text-gray-700">Role</label>
+          <p-dropdown id="role" formControlName="role" [options]="roleOptions" optionLabel="name" optionValue="name"
+            placeholder="Select a role"
+            class="w-full"
+            [styleClass]="'w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'"></p-dropdown>
+          <small *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched"
+            class="p-error text-red-500 text-xs mt-1">
+            {{ getFieldError('role') }}
+          </small>
+        </div>
+
+        <!-- Driver Status Selection -->
+        <div>
+          <label for="driverStatus" class="block mb-2 text-sm font-semibold text-gray-700">Driver Status</label>
+          <p-dropdown id="driverStatus" formControlName="currentDriverStatus" [options]="driverStatusOptions"
+            [placeholder]="'Select driver status'" optionLabel="label" optionValue="value" [appendTo]="'body'"
+            styleClass="w-full" class="w-full"
+            inputClass=" p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
+          </p-dropdown>
+        </div>
+      </div>
+
+
+      <div class="flex justify-end gap-4 mt-8">
+        <button pButton type="button" label="Cancel"
+          class="p-button-outlined p-button-secondary border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5 font-semibold transition-all duration-200"
+          (click)="displayDialog = false"></button>
+        <button pButton type="submit" [label]="isEditing ? 'Update' : 'Create'"
+          class="p-button-primary bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-5 py-2.5 font-semibold shadow-md transition-all duration-200"
+          [disabled]="userForm.invalid || loading"></button>
+      </div>
+    </form>
+  </p-dialog>
+
+
+  <!-- Delete Confirmation Dialog -->
+  <p-confirmDialog [style]="{ width: '500px' }" header="Confirmation"
+    icon="pi pi-exclamation-triangle"></p-confirmDialog>
+</div>

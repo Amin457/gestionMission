@@ -1,0 +1,153 @@
+<div class="card p-4">
+  <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-800">Cities Management</h2>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        label="Add City"
+        class="p-button-success"
+        (click)="showAddEditDialog()"
+      ></button>
+    </div>
+  
+    <p-table
+      [value]="cities"
+      [paginator]="false"
+      [rows]="10"
+      [scrollable]="true" 
+      scrollHeight="600px"
+      [loading]="loading"
+      sortMode="multiple"
+      styleClass="p-datatable-striped p-datatable-sm"
+      responsiveLayout="scroll"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="postalCode">Postal Code <p-sortIcon field="postalCode"></p-sortIcon></th>
+          <th pSortableColumn="region">Region <p-sortIcon field="region"></p-sortIcon></th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-city>
+        <tr>
+          <td>{{ city.name }}</td>
+          <td>{{ city.postalCode }}</td>
+          <td>{{ city.region }}</td>
+          <td class="flex justify-center gap-2">
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-sm p-button-info"
+              (click)="showAddEditDialog(city)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-sm p-button-danger"
+              (click)="confirmDelete(city)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center py-6 text-gray-500">
+            <i class="pi pi-info-circle mr-2 text-lg"></i>
+            No cities found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+        <!-- Pagination -->
+        <div>
+          <p-paginator 
+            [rows]="pageSize" 
+            [totalRecords]="totalRecords" 
+            [rowsPerPageOptions]="[5, 10, 25, 50]" 
+            (onPageChange)="onPageChange($event)"
+          ></p-paginator>
+        </div>
+</div>
+  
+  <p-dialog
+    [(visible)]="displayDialog"
+    [modal]="true"
+    [closable]="true"
+    [style]="{ width: '450px' }"
+    [draggable]="false"
+    header="{{ isEditing ? 'Edit City' : 'Add City' }}"
+  >
+  <form [formGroup]="cityForm" (ngSubmit)="onSubmit()" class="space-y-4">
+    <div>
+      <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+      <input
+        pInputText
+        id="name"
+        type="text"
+        formControlName="name"
+        autofocus
+        class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        [class.p-invalid]="cityForm.get('name')?.invalid && cityForm.get('name')?.touched"
+      />
+      <small class="p-error text-sm" *ngIf="getFieldError('name')">
+        {{ getFieldError('name') }}
+      </small>
+    </div>
+  
+    <div>
+      <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+      <input
+        pInputText
+        id="postalCode"
+        type="text"
+        formControlName="postalCode"
+        class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        [class.p-invalid]="cityForm.get('postalCode')?.invalid && cityForm.get('postalCode')?.touched"
+      />
+      <small class="p-error text-sm" *ngIf="getFieldError('postalCode')">
+        {{ getFieldError('postalCode') }}
+      </small>
+    </div>
+  
+    <div>
+      <label for="region" class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+      <input
+        pInputText
+        id="region"
+        type="text"
+        formControlName="region"
+        class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        [class.p-invalid]="cityForm.get('region')?.invalid && cityForm.get('region')?.touched"
+      />
+      <small class="p-error text-sm" *ngIf="getFieldError('region')">
+        {{ getFieldError('region') }}
+      </small>
+    </div>
+  
+    <div class="flex justify-end gap-2 pt-4">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-times"
+        label="Cancel"
+        class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-2 rounded-md"
+        (click)="displayDialog = false"
+      ></button>
+      <button
+        pButton
+        type="submit"
+        icon="pi pi-check"
+        [label]="isEditing ? 'Update' : 'Create'"
+        class="bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-md"
+        [disabled]="loading"
+      ></button>
+    </div>
+  </form>
+  
+  </p-dialog>
+  
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  

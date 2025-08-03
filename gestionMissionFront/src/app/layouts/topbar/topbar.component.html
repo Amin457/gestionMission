@@ -1,0 +1,21 @@
+<div class="home-content rounded-xl shadow-lg border-2 border-gradient-to-r from-indigo-100 to-purple-100">
+  <i class='bx bx-menu' (click)="toggleSidebar()"></i>   
+  
+  <div class="user-profile">
+    <div class="topbar-actions">
+      <!-- New Notification Bell Component -->
+      <app-notification-bell></app-notification-bell>
+    </div>
+    
+    <!-- User Profile -->
+    <div class="user-info">
+      <div class="user-avatar">
+        <span class="avatar-initials">{{ getUserInitials() }}</span>
+      </div>
+      <div class="user-details">
+        <span class="user-name">{{ getUserFullName() }}</span>
+        <span class="user-role" *ngIf="currentUser">{{ currentUser.role }}</span>
+      </div>
+    </div>
+  </div>
+</div>

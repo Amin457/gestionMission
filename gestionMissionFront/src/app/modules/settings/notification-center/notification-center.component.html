@@ -1,0 +1,378 @@
+<!-- Notification Center Component -->
+<div class="notification-center-container">
+  
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>Notification Center</h1>
+        <p>Manage and view all your notifications</p>
+      </div>
+      
+      <div class="header-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Mark All as Read" 
+          icon="pi pi-check-double"
+          class="p-button-success"
+          [disabled]="stats.unread === 0"
+          (click)="markAllAsRead()"
+          pTooltip="Mark all notifications as read">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          [icon]="layout === 'list' ? 'pi pi-th-large' : 'pi pi-list'"
+          class="p-button-outlined"
+          (click)="toggleLayout()"
+          [pTooltip]="layout === 'list' ? 'Switch to grid view' : 'Switch to list view'">
+        </button>
+        
+        <!-- Test Buttons -->
+        <button 
+          pButton 
+          type="button" 
+          label="Test System" 
+          icon="pi pi-cog"
+          class="p-button-outlined p-button-info"
+          (click)="testNotificationSystem()"
+          pTooltip="Test notification system connectivity">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Create Test" 
+          icon="pi pi-plus"
+          class="p-button-outlined p-button-success"
+          (click)="createTestNotification()"
+          pTooltip="Create a test notification">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Send Real-time" 
+          icon="pi pi-bolt"
+          class="p-button-outlined p-button-warning"
+          (click)="sendTestRealTimeNotification()"
+          pTooltip="Send a test real-time notification">
+        </button>
+      </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-cards">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <i class="pi pi-bell"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.total }}</h3>
+          <p>Total Notifications</p>
+        </div>
+      </div>
+      
+      <div class="stat-card unread">
+        <div class="stat-icon">
+          <i class="pi pi-exclamation-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.unread }}</h3>
+          <p>Unread</p>
+        </div>
+      </div>
+      
+      <div class="stat-card read">
+        <div class="stat-icon">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.read }}</h3>
+          <p>Read</p>
+        </div>
+      </div>
+      
+      <div class="stat-card archived">
+        <div class="stat-icon">
+          <i class="pi pi-archive"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.archived }}</h3>
+          <p>Archived</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-content">
+      <div class="search-filter">
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            placeholder="Search notifications..."
+            [(ngModel)]="searchText"
+            (input)="applySearchFilter()"
+            class="search-input">
+        </span>
+      </div>
+      
+      <div class="filter-controls">
+        <p-dropdown 
+          [options]="statusOptions" 
+          [(ngModel)]="currentFilter.status"
+          placeholder="All Status"
+          optionLabel="label"
+          optionValue="value"
+          class="filter-dropdown">
+        </p-dropdown>
+        
+        <p-dropdown 
+          [options]="typeOptions" 
+          [(ngModel)]="currentFilter.type"
+          placeholder="All Types"
+          optionLabel="label"
+          optionValue="value"
+          class="filter-dropdown">
+        </p-dropdown>
+        
+        <p-dropdown 
+          [options]="priorityOptions" 
+          [(ngModel)]="currentFilter.priority"
+          placeholder="All Priorities"
+          optionLabel="label"
+          optionValue="value"
+          class="filter-dropdown">
+        </p-dropdown>
+        
+        <p-calendar 
+          [(ngModel)]="currentFilter.dateFrom"
+          placeholder="From Date"
+          dateFormat="dd/mm/yy"
+          class="filter-calendar">
+        </p-calendar>
+        
+        <p-calendar 
+          [(ngModel)]="currentFilter.dateTo"
+          placeholder="To Date"
+          dateFormat="dd/mm/yy"
+          class="filter-calendar">
+        </p-calendar>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Apply Filters" 
+          icon="pi pi-filter"
+          class="p-button-primary"
+          [loading]="isFiltering"
+          (click)="applyFilters()">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Clear" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content-section">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-spinner">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading notifications...</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredNotifications.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="pi pi-bell-slash"></i>
+      </div>
+      <h3>No notifications found</h3>
+      <p>Try adjusting your filters or search terms</p>
+      <button 
+        pButton 
+        type="button" 
+        label="Clear Filters" 
+        icon="pi pi-refresh"
+        class="p-button-outlined"
+        (click)="clearFilters()">
+      </button>
+    </div>
+
+    <!-- Notifications List/Grid -->
+    <div *ngIf="!isLoading && filteredNotifications.length > 0" class="notifications-content">
+      <!-- List View -->
+      <div *ngIf="layout === 'list'" class="notifications-list">
+        <div 
+          *ngFor="let notification of filteredNotifications.slice(first, first + rows)" 
+          class="notification-item"
+          [class.unread]="notification.status === 'Unread'"
+          [class.recent]="isRecentNotification(notification)"
+          (click)="navigateToNotification(notification)">
+          
+          <div class="notification-icon">
+            <i [class]="getNotificationIcon(notification)"></i>
+            <div *ngIf="notification.status === 'Unread'" class="unread-indicator"></div>
+          </div>
+          
+          <div class="notification-content">
+            <div class="notification-header">
+              <h4 class="notification-title">{{ notification.title }}</h4>
+              <div class="notification-meta">
+                <p-chip 
+                  [label]="notification.notificationType" 
+                  [styleClass]="'type-chip ' + getStatusSeverity(notification.status)"
+                  class="type-chip">
+                </p-chip>
+                <p-chip 
+                  [label]="notification.priority" 
+                  [styleClass]="'priority-chip ' + getPrioritySeverity(notification.priority)"
+                  class="priority-chip">
+                </p-chip>
+                <span class="notification-time">{{ getTimeAgo(notification.sentDate) }}</span>
+              </div>
+            </div>
+            
+            <p class="notification-message">{{ notification.message }}</p>
+            
+            <div class="notification-footer">
+              <span class="notification-date">{{ formatNotificationDate(notification.sentDate) }}</span>
+              
+              <div class="notification-actions">
+                <button 
+                  *ngIf="notification.status === 'Unread'"
+                  pButton 
+                  type="button" 
+                  icon="pi pi-check" 
+                  class="p-button-text p-button-sm"
+                  (click)="markAsRead(notification); $event.stopPropagation()"
+                  pTooltip="Mark as read">
+                </button>
+                
+                <button 
+                  pButton 
+                  type="button" 
+                  icon="pi pi-archive" 
+                  class="p-button-text p-button-sm"
+                  (click)="markAsArchived(notification); $event.stopPropagation()"
+                  pTooltip="Archive">
+                </button>
+                
+                <button 
+                  pButton 
+                  type="button" 
+                  icon="pi pi-trash" 
+                  class="p-button-text p-button-sm p-button-danger"
+                  (click)="deleteNotification(notification); $event.stopPropagation()"
+                  pTooltip="Delete">
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid View -->
+      <div *ngIf="layout === 'grid'" class="notifications-grid">
+        <div 
+          *ngFor="let notification of filteredNotifications.slice(first, first + rows)" 
+          class="notification-card"
+          [class.unread]="notification.status === 'Unread'"
+          [class.recent]="isRecentNotification(notification)"
+          (click)="navigateToNotification(notification)">
+          
+          <div class="card-header">
+            <div class="card-icon">
+              <i [class]="getNotificationIcon(notification)"></i>
+            </div>
+            <div class="card-meta">
+                             <p-chip 
+                 [label]="notification.notificationType" 
+                 [styleClass]="'type-chip ' + getStatusSeverity(notification.status)"
+                 class="type-chip">
+               </p-chip>
+               <p-chip 
+                 [label]="notification.priority" 
+                 [styleClass]="'priority-chip ' + getPrioritySeverity(notification.priority)"
+                 class="priority-chip">
+               </p-chip>
+            </div>
+          </div>
+          
+          <div class="card-content">
+            <h4 class="card-title">{{ notification.title }}</h4>
+            <p class="card-message">{{ notification.message }}</p>
+          </div>
+          
+          <div class="card-footer">
+            <span class="card-time">{{ getTimeAgo(notification.sentDate) }}</span>
+            
+            <div class="card-actions">
+              <button 
+                *ngIf="notification.status === 'Unread'"
+                pButton 
+                type="button" 
+                icon="pi pi-check" 
+                class="p-button-text p-button-sm"
+                (click)="markAsRead(notification); $event.stopPropagation()"
+                pTooltip="Mark as read">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-archive" 
+                class="p-button-text p-button-sm"
+                (click)="markAsArchived(notification); $event.stopPropagation()"
+                pTooltip="Archive">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-trash" 
+                class="p-button-text p-button-sm p-button-danger"
+                (click)="deleteNotification(notification); $event.stopPropagation()"
+                pTooltip="Delete">
+              </button>
+            </div>
+          </div>
+          
+          <div *ngIf="notification.status === 'Unread'" class="unread-badge"></div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-section">
+        <p-paginator 
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="totalRecords"
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} notifications">
+        </p-paginator>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,157 @@
+<!-- Notification Bell Component -->
+<div class="notification-bell-container">
+  
+  <!-- Toast for notifications -->
+  <p-toast key="notification-toast" position="bottom-right"></p-toast>
+  
+  <!-- Notification Bell Button -->
+  <button 
+    pButton 
+    type="button" 
+    class="notification-bell-btn"
+    [class.connected]="connectionStatus === 'connected'"
+    [class.connecting]="connectionStatus === 'connecting'"
+    [class.reconnecting]="connectionStatus === 'reconnecting'"
+    [class.disconnected]="connectionStatus === 'disconnected'"
+    (click)="toggleOverlay($event, notificationPanel)"
+    pTooltip="Notifications"
+    tooltipPosition="bottom">
+    
+    <!-- Bell Icon -->
+    <i class="pi pi-bell notification-icon"></i>
+    
+    <!-- Connection Status Indicator -->
+    <div class="connection-indicator" [class]="connectionStatus"></div>
+    
+    <!-- Unread Badge -->
+    <p-badge 
+      *ngIf="unreadCount > 0" 
+      [value]="unreadCount > 99 ? '99+' : unreadCount.toString()"
+      severity="danger"
+      class="notification-badge">
+    </p-badge>
+  </button>
+
+  <!-- Notification Overlay Panel -->
+  <p-overlayPanel 
+    #notificationPanel 
+    [showCloseIcon]="true"
+    styleClass="notification-overlay"
+    (onShow)="isOverlayVisible = true"
+    (onHide)="isOverlayVisible = false">
+    
+    <!-- Overlay Header -->
+    <div class="overlay-header">
+      <div class="header-content">
+        <h3>Notifications</h3>
+        <div class="header-actions">
+          <button 
+            pButton 
+            type="button" 
+            icon="pi pi-check-double" 
+            class="p-button-text p-button-sm"
+            (click)="markAllAsRead()"
+            pTooltip="Mark all as read"
+            [disabled]="unreadCount === 0">
+          </button>
+        </div>
+      </div>
+      
+      <!-- Connection Status -->
+      <div class="connection-status" [class]="connectionStatus">
+        <i class="pi" [ngClass]="{
+          'pi-check-circle': connectionStatus === 'connected',
+          'pi-spin pi-spinner': connectionStatus === 'connecting' || connectionStatus === 'reconnecting',
+          'pi-times-circle': connectionStatus === 'disconnected'
+        }"></i>
+        <span>{{ connectionStatus | titlecase }}</span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-spinner">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading notifications...</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && notifications.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="pi pi-bell-slash"></i>
+      </div>
+      <h4>No notifications</h4>
+      <p>You're all caught up!</p>
+    </div>
+
+    <!-- Notifications List -->
+    <div *ngIf="!isLoading && notifications.length > 0" class="notifications-list">
+      <div 
+        *ngFor="let notification of notifications.slice(0, 10)" 
+        class="notification-item"
+        [class.unread]="(notification.status || 'Unread') === 'Unread'"
+        [class.recent]="isRecentNotification(notification)"
+        [class]="getNotificationPriorityClass(notification)"
+        (click)="navigateToNotification(notification)">
+        
+        <!-- Notification Icon -->
+        <div class="notification-icon-wrapper">
+          <i [class]="getNotificationIcon(notification)"></i>
+          <div *ngIf="(notification.status || 'Unread') === 'Unread'" class="unread-indicator"></div>
+        </div>
+
+        <!-- Notification Content -->
+        <div class="notification-content">
+          <div class="notification-header">
+            <h4 class="notification-title">{{ notification.title }}</h4>
+            <span class="notification-time">{{ formatNotificationDate(notification.sentDate) }}</span>
+          </div>
+          
+          <p class="notification-message">{{ notification.message }}</p>
+          
+          <div class="notification-meta">
+            <span class="notification-type">{{ notification.notificationType || 'System' }}</span>
+            <span class="notification-priority" [class]="getPriorityString(notification.priority)">
+              {{ notification.priority || 'Normal' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Notification Actions -->
+        <div class="notification-actions">
+          <button 
+            *ngIf="(notification.status || 'Unread') === 'Unread'"
+            pButton 
+            type="button" 
+            icon="pi pi-check" 
+            class="p-button-text p-button-sm action-btn"
+            (click)="markAsRead(notification, $event)"
+            pTooltip="Mark as read">
+          </button>
+          
+          <button 
+            pButton 
+            type="button" 
+            icon="pi pi-trash" 
+            class="p-button-text p-button-sm action-btn delete-btn"
+            (click)="deleteNotification(notification, $event)"
+            pTooltip="Delete notification">
+          </button>
+        </div>
+      </div>
+
+      <!-- View All Link -->
+      <div *ngIf="notifications.length > 10" class="view-all-link">
+        <button 
+          pButton 
+          type="button" 
+          label="View All Notifications" 
+          class="p-button-text"
+          icon="pi pi-external-link"
+          (click)="navigateToNotifications()">
+        </button>
+      </div>
+    </div>
+  </p-overlayPanel>
+</div> 

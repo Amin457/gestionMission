@@ -1,0 +1,675 @@
+USE [MissionDatabaseTest3]
+GO
+
+-- Set database options
+ALTER DATABASE [MissionDatabaseTest3] SET COMPATIBILITY_LEVEL = 150
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [MissionDatabaseTest3].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET AUTO_CLOSE ON 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET  ENABLE_BROKER 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET READ_COMMITTED_SNAPSHOT ON 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET RECOVERY SIMPLE 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET  MULTI_USER 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET ACCELERATED_DATABASE_RECOVERY = OFF  
+GO
+ALTER DATABASE [MissionDatabaseTest3] SET QUERY_STORE = OFF
+GO
+
+-- Now copy the rest of your original script content here
+-- (tables, indexes, data, etc.)
+
+/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[__EFMigrationsHistory](
+	[MigrationId] [nvarchar](150) NOT NULL,
+	[ProductVersion] [nvarchar](32) NOT NULL,
+ CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY CLUSTERED 
+(
+	[MigrationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Article]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Article](
+	[ArticleID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[Quantity] [int] NOT NULL,
+	[Weight] [float] NOT NULL,
+	[Volume] [float] NOT NULL,
+	[PhotoUrls] [nvarchar](2000) NULL,
+ CONSTRAINT [PK__Article__9C6270C8AD0F3EFB] PRIMARY KEY CLUSTERED 
+(
+	[ArticleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Circuit]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Circuit](
+	[CircuitID] [int] IDENTITY(1,1) NOT NULL,
+	[MissionID] [int] NOT NULL,
+	[DepartureDate] [datetime2](7) NOT NULL,
+	[ArrivalSiteID] [int] NOT NULL,
+	[DepartureSiteID] [int] NOT NULL,
+ CONSTRAINT [PK__Circuit__7D21697020F37C3D] PRIMARY KEY CLUSTERED 
+(
+	[CircuitID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[City]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[City](
+	[CityID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[PostalCode] [nvarchar](10) NOT NULL,
+	[Region] [nvarchar](100) NOT NULL,
+ CONSTRAINT [PK_City] PRIMARY KEY CLUSTERED 
+(
+	[CityID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Document]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Document](
+	[DocumentID] [int] IDENTITY(1,1) NOT NULL,
+	[TaskID] [int] NOT NULL,
+	[Name] [nvarchar](255) NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[StoragePath] [nvarchar](500) NOT NULL,
+	[AddedDate] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK__Document__1ABEEF6F3F9BB20D] PRIMARY KEY CLUSTERED 
+(
+	[DocumentID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Incident]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Incident](
+	[IncidentID] [int] IDENTITY(1,1) NOT NULL,
+	[MissionID] [int] NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](max) NOT NULL,
+	[ReportDate] [datetime2](7) NOT NULL,
+	[Status] [nvarchar](50) NOT NULL,
+	[IncidentDocsUrls] [nvarchar](2000) NULL,
+ CONSTRAINT [PK__Incident__3D80539215473664] PRIMARY KEY CLUSTERED 
+(
+	[IncidentID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Mission]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Mission](
+	[MissionID] [int] IDENTITY(1,1) NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[RequesterID] [int] NOT NULL,
+	[DriverID] [int] NOT NULL,
+	[SystemDate] [datetime2](7) NOT NULL,
+	[DesiredDate] [datetime2](7) NULL,
+	[Service] [nvarchar](255) NOT NULL,
+	[Receiver] [nvarchar](255) NOT NULL,
+	[Status] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK__Mission__66DFB854D8A8E8BD] PRIMARY KEY CLUSTERED 
+(
+	[MissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MissionCost]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MissionCost](
+	[CostID] [int] IDENTITY(1,1) NOT NULL,
+	[MissionID] [int] NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[Amount] [float] NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[ReceiptPhotoUrls] [nvarchar](2000) NULL,
+ CONSTRAINT [PK__MissionC__8285231E0764B8E9] PRIMARY KEY CLUSTERED 
+(
+	[CostID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Notification]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Notification](
+	[NotificationId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[Title] [nvarchar](255) NOT NULL,
+	[Message] [nvarchar](max) NOT NULL,
+	[SentDate] [datetime] NOT NULL,
+	[NotificationType] [nvarchar](50) NOT NULL,
+	[Priority] [nvarchar](50) NOT NULL,
+	[Status] [nvarchar](50) NOT NULL,
+	[RelatedEntityType] [nvarchar](255) NULL,
+	[RelatedEntityId] [int] NULL,
+	[ExpiryDate] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[NotificationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Role]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Role](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Code] [nvarchar](50) NOT NULL,
+	[Libelle] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Role] PRIMARY KEY CLUSTERED 
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Route]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Route](
+	[RouteID] [int] IDENTITY(1,1) NOT NULL,
+	[CircuitID] [int] NOT NULL,
+	[DistanceKM] [float] NULL,
+	[ArrivalSiteID] [int] NOT NULL,
+	[DepartureSiteID] [int] NOT NULL,
+	[Ordre] [int] NOT NULL,
+ CONSTRAINT [PK__Route__80979AAD76DC2E82] PRIMARY KEY CLUSTERED 
+(
+	[RouteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Site]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Site](
+	[SiteID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[Address] [nvarchar](200) NOT NULL,
+	[Phone] [nvarchar](20) NULL,
+	[CityID] [int] NOT NULL,
+	[Latitude] [decimal](10, 6) NOT NULL,
+	[Longitude] [decimal](10, 6) NOT NULL,
+ CONSTRAINT [PK_Site] PRIMARY KEY CLUSTERED 
+(
+	[SiteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Task]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Task](
+	[TaskID] [int] IDENTITY(1,1) NOT NULL,
+	[Description] [nvarchar](max) NOT NULL,
+	[AssignmentDate] [datetime2](7) NOT NULL,
+	[CompletionDate] [datetime2](7) NULL,
+	[Status] [nvarchar](50) NOT NULL,
+	[SiteID] [int] NOT NULL,
+	[MissionID] [int] NULL,
+	[IsFirstTask] [bit] NOT NULL,
+ CONSTRAINT [PK__Task__7C6949D18E3FD33F] PRIMARY KEY CLUSTERED 
+(
+	[TaskID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TaskArticle]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TaskArticle](
+	[ArticlesArticleId] [int] NOT NULL,
+	[TasksTaskId] [int] NOT NULL,
+ CONSTRAINT [PK_TaskArticle] PRIMARY KEY CLUSTERED 
+(
+	[ArticlesArticleId] ASC,
+	[TasksTaskId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[User]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[User](
+	[UserID] [int] IDENTITY(1,1) NOT NULL,
+	[LastName] [nvarchar](100) NOT NULL,
+	[FirstName] [nvarchar](100) NOT NULL,
+	[Phone] [nvarchar](20) NULL,
+	[Email] [nvarchar](255) NOT NULL,
+	[PasswordHash] [nvarchar](255) NOT NULL,
+	[RoleId] [int] NOT NULL,
+	[CurrentDriverStatus] [nvarchar](50) NULL,
+ CONSTRAINT [PK__User__1788CCACD0A71248] PRIMARY KEY CLUSTERED 
+(
+	[UserID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserConnection]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserConnection](
+	[ConnectionId] [nvarchar](100) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[ConnectedAt] [datetime] NOT NULL,
+	[LastActivity] [datetime] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ConnectionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Vehicle]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Vehicle](
+	[VehicleID] [int] IDENTITY(1,1) NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[LicensePlate] [nvarchar](50) NOT NULL,
+	[Availability] [bit] NOT NULL,
+	[MaxCapacity] [float] NOT NULL,
+	[PhotoUrls] [nchar](500) NULL,
+ CONSTRAINT [PK__Vehicle__476B54B22EA98523] PRIMARY KEY CLUSTERED 
+(
+	[VehicleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[VehicleReservation]    Script Date: 03/08/2025 16:02:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[VehicleReservation](
+	[ReservationID] [int] IDENTITY(1,1) NOT NULL,
+	[RequesterID] [int] NOT NULL,
+	[VehicleID] [int] NOT NULL,
+	[RequiresDriver] [bit] NOT NULL,
+	[Departure] [nvarchar](255) NOT NULL,
+	[Destination] [nvarchar](255) NOT NULL,
+	[StartDate] [datetime2](7) NOT NULL,
+	[EndDate] [datetime2](7) NOT NULL,
+	[Status] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK__VehicleR__B7EE5F04DE7C200E] PRIMARY KEY CLUSTERED 
+(
+	[ReservationID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+-- Create indexes
+/****** Object:  Index [IX_Circuit_ArrivalSiteID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Circuit_ArrivalSiteID] ON [dbo].[Circuit]
+(
+	[ArrivalSiteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Circuit_DepartureSiteID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Circuit_DepartureSiteID] ON [dbo].[Circuit]
+(
+	[DepartureSiteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Circuit_MissionID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Circuit_MissionID] ON [dbo].[Circuit]
+(
+	[MissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Document_TaskID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Document_TaskID] ON [dbo].[Document]
+(
+	[TaskID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Incident_MissionID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Incident_MissionID] ON [dbo].[Incident]
+(
+	[MissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Mission_DriverID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Mission_DriverID] ON [dbo].[Mission]
+(
+	[DriverID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Mission_RequesterID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Mission_RequesterID] ON [dbo].[Mission]
+(
+	[RequesterID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_MissionCost_MissionID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_MissionCost_MissionID] ON [dbo].[MissionCost]
+(
+	[MissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Role_Name]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Role_Name] ON [dbo].[Role]
+(
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Route_ArrivalSiteID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Route_ArrivalSiteID] ON [dbo].[Route]
+(
+	[ArrivalSiteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Route_CircuitID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Route_CircuitID] ON [dbo].[Route]
+(
+	[CircuitID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Route_DepartureSiteID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Route_DepartureSiteID] ON [dbo].[Route]
+(
+	[DepartureSiteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Site_CityID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Site_CityID] ON [dbo].[Site]
+(
+	[CityID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Task_MissionID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Task_MissionID] ON [dbo].[Task]
+(
+	[MissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_Task_SiteID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_Task_SiteID] ON [dbo].[Task]
+(
+	[SiteID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_TaskArticle_TasksTaskId]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_TaskArticle_TasksTaskId] ON [dbo].[TaskArticle]
+(
+	[TasksTaskId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_User_RoleId]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_User_RoleId] ON [dbo].[User]
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ__User__A9D10534D7BE49D1]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE UNIQUE NONCLUSTERED INDEX [UQ__User__A9D10534D7BE49D1] ON [dbo].[User]
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ__Vehicle__026BC15C17EB5336]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE UNIQUE NONCLUSTERED INDEX [UQ__Vehicle__026BC15C17EB5336] ON [dbo].[Vehicle]
+(
+	[LicensePlate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_VehicleReservation_RequesterID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_VehicleReservation_RequesterID] ON [dbo].[VehicleReservation]
+(
+	[RequesterID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_VehicleReservation_VehicleID]    Script Date: 03/08/2025 16:02:22 ******/
+CREATE NONCLUSTERED INDEX [IX_VehicleReservation_VehicleID] ON [dbo].[VehicleReservation]
+(
+	[VehicleID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- Add default constraints
+ALTER TABLE [dbo].[Circuit] ADD  DEFAULT ((0)) FOR [ArrivalSiteID]
+GO
+ALTER TABLE [dbo].[Circuit] ADD  DEFAULT ((0)) FOR [DepartureSiteID]
+GO
+ALTER TABLE [dbo].[Notification] ADD  CONSTRAINT [DF_Notification_NotificationType]  DEFAULT ('System') FOR [NotificationType]
+GO
+ALTER TABLE [dbo].[Notification] ADD  CONSTRAINT [DF_Notification_Priority]  DEFAULT ('Normal') FOR [Priority]
+GO
+ALTER TABLE [dbo].[Notification] ADD  CONSTRAINT [DF_Notification_Status]  DEFAULT ('Unread') FOR [Status]
+GO
+ALTER TABLE [dbo].[Route] ADD  CONSTRAINT [DF__Route__ArrivalSi__6754599E]  DEFAULT ((0)) FOR [ArrivalSiteID]
+GO
+ALTER TABLE [dbo].[Route] ADD  CONSTRAINT [DF__Route__Departure__68487DD7]  DEFAULT ((0)) FOR [DepartureSiteID]
+GO
+ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [IsFirstTask]
+GO
+ALTER TABLE [dbo].[UserConnection] ADD  DEFAULT (getdate()) FOR [ConnectedAt]
+GO
+ALTER TABLE [dbo].[UserConnection] ADD  DEFAULT (getdate()) FOR [LastActivity]
+GO
+ALTER TABLE [dbo].[Vehicle] ADD  DEFAULT (CONVERT([bit],(1))) FOR [Availability]
+GO
+
+-- Add foreign key constraints
+ALTER TABLE [dbo].[Circuit]  WITH CHECK ADD  CONSTRAINT [FK__Circuit__Mission__5535A963] FOREIGN KEY([MissionID])
+REFERENCES [dbo].[Mission] ([MissionID])
+GO
+ALTER TABLE [dbo].[Circuit] CHECK CONSTRAINT [FK__Circuit__Mission__5535A963]
+GO
+ALTER TABLE [dbo].[Circuit]  WITH CHECK ADD  CONSTRAINT [FK_Circuit_ArrivalSite] FOREIGN KEY([ArrivalSiteID])
+REFERENCES [dbo].[Site] ([SiteID])
+GO
+ALTER TABLE [dbo].[Circuit] CHECK CONSTRAINT [FK_Circuit_ArrivalSite]
+GO
+ALTER TABLE [dbo].[Circuit]  WITH CHECK ADD  CONSTRAINT [FK_Circuit_DepartureSite] FOREIGN KEY([DepartureSiteID])
+REFERENCES [dbo].[Site] ([SiteID])
+GO
+ALTER TABLE [dbo].[Circuit] CHECK CONSTRAINT [FK_Circuit_DepartureSite]
+GO
+ALTER TABLE [dbo].[Document]  WITH CHECK ADD  CONSTRAINT [FK__Document__TaskID__619B8048] FOREIGN KEY([TaskID])
+REFERENCES [dbo].[Task] ([TaskID])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[Document] CHECK CONSTRAINT [FK__Document__TaskID__619B8048]
+GO
+ALTER TABLE [dbo].[Incident]  WITH CHECK ADD  CONSTRAINT [FK__Incident__Missio__4E88ABD4] FOREIGN KEY([MissionID])
+REFERENCES [dbo].[Mission] ([MissionID])
+GO
+ALTER TABLE [dbo].[Incident] CHECK CONSTRAINT [FK__Incident__Missio__4E88ABD4]
+GO
+ALTER TABLE [dbo].[Mission]  WITH CHECK ADD  CONSTRAINT [FK__Mission__DriverID] FOREIGN KEY([DriverID])
+REFERENCES [dbo].[User] ([UserID])
+GO
+ALTER TABLE [dbo].[Mission] CHECK CONSTRAINT [FK__Mission__DriverID]
+GO
+ALTER TABLE [dbo].[Mission]  WITH CHECK ADD  CONSTRAINT [FK__Mission__RequesterID] FOREIGN KEY([RequesterID])
+REFERENCES [dbo].[User] ([UserID])
+GO
+ALTER TABLE [dbo].[Mission] CHECK CONSTRAINT [FK__Mission__RequesterID]
+GO
+ALTER TABLE [dbo].[MissionCost]  WITH CHECK ADD  CONSTRAINT [FK__MissionCo__Missi__52593CB8] FOREIGN KEY([MissionID])
+REFERENCES [dbo].[Mission] ([MissionID])
+GO
+ALTER TABLE [dbo].[MissionCost] CHECK CONSTRAINT [FK__MissionCo__Missi__52593CB8]
+GO
+ALTER TABLE [dbo].[Notification]  WITH CHECK ADD FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([UserID])
+GO
+ALTER TABLE [dbo].[Route]  WITH CHECK ADD  CONSTRAINT [FK__Route__CircuitID__5812160E] FOREIGN KEY([CircuitID])
+REFERENCES [dbo].[Circuit] ([CircuitID])
+GO
+ALTER TABLE [dbo].[Route] CHECK CONSTRAINT [FK__Route__CircuitID__5812160E]
+GO
+ALTER TABLE [dbo].[Route]  WITH CHECK ADD  CONSTRAINT [FK_Route_ArrivalSite] FOREIGN KEY([ArrivalSiteID])
+REFERENCES [dbo].[Site] ([SiteID])
+GO
+ALTER TABLE [dbo].[Route] CHECK CONSTRAINT [FK_Route_ArrivalSite]
+GO
+ALTER TABLE [dbo].[Route]  WITH CHECK ADD  CONSTRAINT [FK_Route_DepartureSite] FOREIGN KEY([DepartureSiteID])
+REFERENCES [dbo].[Site] ([SiteID])
+GO
+ALTER TABLE [dbo].[Route] CHECK CONSTRAINT [FK_Route_DepartureSite]
+GO
+ALTER TABLE [dbo].[Site]  WITH CHECK ADD  CONSTRAINT [FK_Site_City] FOREIGN KEY([CityID])
+REFERENCES [dbo].[City] ([CityID])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[Site] CHECK CONSTRAINT [FK_Site_City]
+GO
+ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK__Task__MissionID__787EE5A0] FOREIGN KEY([MissionID])
+REFERENCES [dbo].[Mission] ([MissionID])
+GO
+ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK__Task__MissionID__787EE5A0]
+GO
+ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Site] FOREIGN KEY([SiteID])
+REFERENCES [dbo].[Site] ([SiteID])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[Task] CHECK CONSTRAINT [FK_Task_Site]
+GO
+ALTER TABLE [dbo].[TaskArticle]  WITH CHECK ADD  CONSTRAINT [FK_TaskArticle_Article_ArticlesArticleId] FOREIGN KEY([ArticlesArticleId])
+REFERENCES [dbo].[Article] ([ArticleID])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[TaskArticle] CHECK CONSTRAINT [FK_TaskArticle_Article_ArticlesArticleId]
+GO
+ALTER TABLE [dbo].[TaskArticle]  WITH CHECK ADD  CONSTRAINT [FK_TaskArticle_Task_TasksTaskId] FOREIGN KEY([TasksTaskId])
+REFERENCES [dbo].[Task] ([TaskID])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[TaskArticle] CHECK CONSTRAINT [FK_TaskArticle_Task_TasksTaskId]
+GO
+ALTER TABLE [dbo].[User]  WITH CHECK ADD  CONSTRAINT [FK_User_Role_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[Role] ([RoleId])
+GO
+ALTER TABLE [dbo].[User] CHECK CONSTRAINT [FK_User_Role_RoleId]
+GO
+ALTER TABLE [dbo].[UserConnection]  WITH CHECK ADD FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([UserID])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[VehicleReservation]  WITH CHECK ADD  CONSTRAINT [FK__VehicleRe__Reque__403A8C7D] FOREIGN KEY([RequesterID])
+REFERENCES [dbo].[User] ([UserID])
+GO
+ALTER TABLE [dbo].[VehicleReservation] CHECK CONSTRAINT [FK__VehicleRe__Reque__403A8C7D]
+GO
+ALTER TABLE [dbo].[VehicleReservation]  WITH CHECK ADD  CONSTRAINT [FK__VehicleRe__Vehic__412EB0B6] FOREIGN KEY([VehicleID])
+REFERENCES [dbo].[Vehicle] ([VehicleID])
+GO
+ALTER TABLE [dbo].[VehicleReservation] CHECK CONSTRAINT [FK__VehicleRe__Vehic__412EB0B6]
+GO
+
+PRINT 'Database initialization completed successfully!'; 

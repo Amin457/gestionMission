@@ -1,0 +1,58 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">
+        <i class='bx bx-task'></i>
+        <h1>TaskTrail</h1>
+      </div>
+      <p class="subtitle">Welcome back! Please sign in to your account.</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email"
+          placeholder="Enter your email"
+          required
+          [disabled]="isLoading"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          [(ngModel)]="password" 
+          name="password"
+          placeholder="Enter your password"
+          required
+          [disabled]="isLoading"
+        >
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <i class='bx bx-error-circle'></i>
+        {{ errorMessage }}
+      </div>
+
+      <button 
+        type="submit" 
+        class="login-btn"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">
+          <i class='bx bx-loader-alt bx-spin'></i>
+          Signing in...
+        </span>
+      </button>
+
+
+    </form>
+  </div>
+</div>

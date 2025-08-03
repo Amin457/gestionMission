@@ -1,0 +1,7 @@
+<app-sidebar></app-sidebar>
+<section class="home-section" [ngClass]="{'sidebar-collapsed': (isCollapsed$ | async)}">
+  <app-topbar></app-topbar>
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
+</section>

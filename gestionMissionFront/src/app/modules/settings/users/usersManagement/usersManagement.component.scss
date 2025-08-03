@@ -1,0 +1,40 @@
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+}
+
+::ng-deep {
+  .p-dropdown {
+    width: 100%;
+    border: 1px solid #d1d5db; /* Tailwind's border-gray-300 */
+    border-radius: 0.375rem; /* Tailwind's rounded-md */
+    transition: all 0.2s ease;
+
+    &.p-invalid {
+      border-color: #ef4444; /* Tailwind's border-red-500 */
+    }
+
+    &:focus-within {
+      outline: none;
+      border-color: #6366f1; /* Tailwind's border-indigo-500 */
+    }
+
+    .p-dropdown-label {
+      padding: 0.7rem; /* Tailwind's p-2 */
+      width: 100%;
+      background: transparent;
+      color: #374151; /* Tailwind's text-gray-700 */
+    }
+
+    .p-dropdown-trigger {
+      padding-right: 0.5rem; /* Ensure icon aligns properly */
+    }
+  }
+
+  /* Ensure dropdown panel matches input style */
+  .p-dropdown-panel {
+    border: 1px solid #d1d5db; /* Tailwind's border-gray-300 */
+    border-radius: 0.375rem; /* Tailwind's rounded-md */
+    background: #ffffff; /* Tailwind's bg-white */
+  }
+}

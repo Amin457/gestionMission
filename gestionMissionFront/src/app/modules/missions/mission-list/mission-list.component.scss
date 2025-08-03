@@ -1,0 +1,895 @@
+:host ::ng-deep {
+  .p-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    background: #ffffff;
+
+    .p-card-body {
+      padding: 0.5rem;
+
+      @media (min-width: 640px) {
+        padding: 1rem;
+      }
+    }
+  }
+
+  .p-inputtext,
+  .p-dropdown,
+  .p-calendar {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+
+    &.p-invalid {
+      border-color: #ef4444;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+    }
+
+    @media (max-width: 640px) {
+      font-size: 0.875rem;
+      padding: 0.4rem;
+    }
+  }
+
+  .p-dropdown,
+  .p-calendar {
+    .p-inputtext {
+      padding: 0.5rem;
+    }
+  }
+
+  .p-dialog {
+    .p-dialog-content {
+      padding: 1rem;
+    }
+
+    .p-dialog-header {
+      font-size: 1.25rem;
+      padding: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .p-dialog-content {
+        padding: 0.75rem;
+      }
+
+      .p-dialog-header {
+        font-size: 1rem;
+        padding: 0.75rem;
+      }
+    }
+  }
+
+  .p-toast {
+    &.p-toast-sm {
+      max-width: 90vw;
+      font-size: 0.9rem;
+
+      @media (max-width: 640px) {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  .p-confirm-dialog {
+    &.p-confirm-dialog-sm {
+      width: 90vw;
+      max-width: 500px;
+
+      .p-dialog-content {
+        padding: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .p-dialog-header {
+        font-size: 1.1rem;
+      }
+
+      @media (max-width: 640px) {
+        .p-dialog-content {
+          padding: 0.75rem;
+          font-size: 0.8rem;
+        }
+
+        .p-dialog-header {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .p-paginator {
+    &.p-paginator-sm {
+      .p-paginator-page,
+      .p-paginator-next,
+      .p-paginator-prev,
+      .p-paginator-first,
+      .p-paginator-last {
+        min-width: 2rem;
+        height: 2rem;
+        line-height: 2rem;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 640px) {
+        .p-paginator-page,
+        .p-paginator-next,
+        .p-paginator-prev,
+        .p-paginator-first,
+        .p-paginator-last {
+          min-width: 1.5rem;
+          height: 1.5rem;
+          line-height: 1.5rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+
+  .p-button {
+    &.p-button-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+
+      @media (max-width: 640px) {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  // Native date input styling
+  .native-date-input {
+    position: relative;
+    background-image: linear-gradient(45deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+    color: #374151;
+    font-weight: 500;
+    
+    &::-webkit-calendar-picker-indicator {
+      background: linear-gradient(45deg, #6366f1, #a855f7);
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      filter: brightness(1.1);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        filter: brightness(1.2);
+        transform: scale(1.05);
+      }
+    }
+    
+    &::-webkit-datetime-edit {
+      color: #374151;
+      font-weight: 500;
+    }
+    
+    &::-webkit-datetime-edit-fields-wrapper {
+      padding: 0;
+    }
+    
+    &::-webkit-datetime-edit-text {
+      color: #6b7280;
+      padding: 0 4px;
+    }
+    
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-year-field,
+    &::-webkit-datetime-edit-hour-field,
+    &::-webkit-datetime-edit-minute-field,
+    &::-webkit-datetime-edit-ampm-field {
+      background: rgba(99, 102, 241, 0.05);
+      border-radius: 3px;
+      padding: 2px 4px;
+      margin: 0 1px;
+      font-weight: 600;
+      color: #374151;
+      transition: all 0.2s ease;
+      
+      &:focus {
+        background: rgba(99, 102, 241, 0.15);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+      }
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+      border-color: #6366f1;
+      background-image: linear-gradient(45deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+    }
+    
+    &:hover {
+      background-image: linear-gradient(45deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+      border-color: #818cf8;
+    }
+    
+    &:invalid {
+      border-color: #ef4444;
+      background-image: linear-gradient(45deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.1) 100%);
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+      }
+    }
+    
+    // Dark mode support
+    @media (prefers-color-scheme: dark) {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+      
+      &::-webkit-datetime-edit {
+        color: #f3f4f6;
+      }
+      
+      &::-webkit-datetime-edit-text {
+        color: #9ca3af;
+      }
+      
+      &::-webkit-datetime-edit-month-field,
+      &::-webkit-datetime-edit-day-field,
+      &::-webkit-datetime-edit-year-field,
+      &::-webkit-datetime-edit-hour-field,
+      &::-webkit-datetime-edit-minute-field,
+      &::-webkit-datetime-edit-ampm-field {
+        background: rgba(99, 102, 241, 0.2);
+        color: #f3f4f6;
+      }
+    }
+  }
+}
+
+.missions-list-container {
+  @apply p-6 bg-gradient-to-br from-gray-50 to-indigo-50 min-h-screen;
+
+  // Custom scrollbar
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gradient-to-b from-indigo-400 to-purple-400 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gradient-to-b from-indigo-500 to-purple-500;
+  }
+
+  // Enhanced table styles
+  ::ng-deep .p-datatable {
+    .p-datatable-header {
+      @apply bg-gradient-to-r from-indigo-50 to-purple-50 border-b-2 border-indigo-200;
+    }
+
+    .p-datatable-thead > tr > th {
+      @apply bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 font-semibold text-gray-700;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        @apply bg-gradient-to-r from-indigo-50 to-purple-50;
+      }
+    }
+
+    .p-datatable-tbody > tr {
+      @apply border-b border-gray-100 transition-all duration-200;
+
+      &:hover {
+        @apply bg-gradient-to-r from-indigo-50 to-purple-50 shadow-sm;
+        transform: translateY(-1px);
+      }
+
+      &.p-highlight {
+        @apply bg-gradient-to-r from-indigo-100 to-purple-100;
+      }
+    }
+
+    .p-sortable-column {
+      &:hover {
+        @apply bg-gradient-to-r from-indigo-50 to-purple-50;
+      }
+
+      &.p-sortable-active {
+        @apply bg-gradient-to-r from-indigo-100 to-purple-100;
+      }
+    }
+
+    .p-checkbox {
+      .p-checkbox-box {
+        @apply border-2 border-gray-300 rounded-md transition-all duration-200;
+
+        &.p-highlight {
+          @apply bg-gradient-to-r from-indigo-500 to-purple-500 border-indigo-500;
+        }
+
+        &:hover {
+          @apply border-indigo-400;
+        }
+      }
+    }
+  }
+
+  // Enhanced dropdown styles
+  ::ng-deep .p-dropdown {
+    .p-dropdown-trigger {
+      @apply text-gray-500;
+    }
+
+    &:not(.p-disabled):hover {
+      @apply border-indigo-400;
+    }
+
+    &.p-focus {
+      @apply border-indigo-500 ring-2 ring-indigo-200;
+    }
+  }
+
+  // Enhanced calendar styles
+  ::ng-deep .p-calendar {
+    .p-inputtext {
+      @apply transition-all duration-200;
+    }
+
+    &:not(.p-disabled):hover .p-inputtext {
+      @apply border-indigo-400;
+    }
+
+    &.p-focus .p-inputtext {
+      @apply border-indigo-500 ring-2 ring-indigo-200;
+    }
+  }
+
+  // Enhanced button styles
+  ::ng-deep .p-button {
+    &.p-button-primary {
+      @apply bg-gradient-to-r from-indigo-600 to-purple-600 border-0 shadow-lg;
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        @apply bg-gradient-to-r from-indigo-700 to-purple-700 shadow-xl transform scale-105;
+      }
+
+      &:active {
+        @apply transform scale-95;
+      }
+    }
+
+    &.p-button-outlined {
+      @apply border-2 transition-all duration-200;
+
+      &:hover {
+        @apply transform scale-105 shadow-md;
+      }
+    }
+
+    &.p-button-text {
+      @apply transition-all duration-200;
+
+      &:hover {
+        @apply transform scale-110;
+      }
+    }
+  }
+
+  // Enhanced dialog styles
+  ::ng-deep .p-dialog {
+    .p-dialog-header {
+      @apply bg-gradient-to-r from-indigo-50 to-purple-50 border-b-2 border-indigo-200;
+    }
+
+    .p-dialog-content {
+      @apply bg-white;
+    }
+
+    .p-dialog-footer {
+      @apply bg-gray-50 border-t border-gray-200;
+    }
+  }
+
+  // Enhanced card styles
+  .mission-card {
+    @apply bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+      @apply shadow-2xl transform -translate-y-2;
+    }
+
+    .card-header {
+      @apply bg-gradient-to-r from-indigo-50 to-purple-50 p-4 border-b border-gray-200;
+    }
+
+    .card-content {
+      @apply p-6;
+    }
+
+    .card-footer {
+      @apply bg-gray-50 p-4 border-t border-gray-200;
+    }
+  }
+
+  // Status badges with animations
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all duration-200;
+
+    &.status-requested {
+      @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+    }
+
+    &.status-approved {
+      @apply bg-blue-100 text-blue-800 border-blue-200;
+    }
+
+    &.status-planned {
+      @apply bg-indigo-100 text-indigo-800 border-indigo-200;
+    }
+
+    &.status-in-progress {
+      @apply bg-orange-100 text-orange-800 border-orange-200;
+    }
+
+    &.status-completed {
+      @apply bg-green-100 text-green-800 border-green-200;
+    }
+
+    &.status-rejected {
+      @apply bg-red-100 text-red-800 border-red-200;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  // Type badges
+  .type-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all duration-200;
+
+    &.type-goods {
+      @apply bg-blue-100 text-blue-800 border-blue-200;
+    }
+
+    &.type-financial {
+      @apply bg-green-100 text-green-800 border-green-200;
+    }
+
+    &.type-administrative {
+      @apply bg-purple-100 text-purple-800 border-purple-200;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  // Priority badges
+  .priority-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border transition-all duration-200;
+
+    &.priority-high {
+      @apply bg-red-100 text-red-800 border-red-200;
+      animation: pulse 2s infinite;
+    }
+
+    &.priority-medium {
+      @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+    }
+
+    &.priority-low {
+      @apply bg-green-100 text-green-800 border-green-200;
+    }
+  }
+
+  // Loading states
+  .loading-overlay {
+    @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50;
+    backdrop-filter: blur(2px);
+  }
+
+  .loading-spinner {
+    @apply w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin;
+  }
+
+  // Filter animations
+  .filter-section {
+    @apply transition-all duration-300 ease-in-out;
+
+    &.collapsed {
+      @apply max-h-0 overflow-hidden opacity-0;
+    }
+
+    &.expanded {
+      @apply max-h-screen opacity-100;
+    }
+  }
+
+  // Search bar enhancements
+  .search-container {
+    @apply relative;
+
+    .search-icon {
+      @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400;
+    }
+
+    .search-input {
+      @apply pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200;
+    }
+  }
+
+  // Stats cards
+  .stats-card {
+    @apply bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300;
+
+    &:hover {
+      @apply shadow-lg transform -translate-y-1;
+    }
+
+    .stats-icon {
+      @apply w-12 h-12 rounded-lg flex items-center justify-center;
+    }
+
+    .stats-value {
+      @apply text-3xl font-bold;
+    }
+
+    .stats-label {
+      @apply text-sm font-medium text-gray-600;
+    }
+  }
+
+  // Responsive grid
+  .missions-grid {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+
+  // Action buttons
+  .action-button {
+    @apply p-2 rounded-lg transition-all duration-200;
+
+    &.view {
+      @apply text-blue-600 hover:bg-blue-100;
+    }
+
+    &.edit {
+      @apply text-orange-600 hover:bg-orange-100;
+    }
+
+    &.delete {
+      @apply text-red-600 hover:bg-red-100;
+    }
+
+    &.tasks {
+      @apply text-green-600 hover:bg-green-100;
+    }
+
+    &.duplicate {
+      @apply text-purple-600 hover:bg-purple-100;
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  // Empty state
+  .empty-state {
+    @apply text-center py-12;
+
+    .empty-icon {
+      @apply text-6xl text-gray-300 mb-4;
+    }
+
+    .empty-title {
+      @apply text-xl font-semibold text-gray-700 mb-2;
+    }
+
+    .empty-description {
+      @apply text-gray-500 mb-6;
+    }
+  }
+
+  // Animations
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  // Apply animations
+  .slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  // Toast enhancements
+  ::ng-deep .p-toast {
+    .p-toast-message {
+      @apply rounded-lg shadow-lg border-0;
+
+      &.p-toast-message-success {
+        @apply bg-gradient-to-r from-green-500 to-emerald-500 text-white;
+      }
+
+      &.p-toast-message-error {
+        @apply bg-gradient-to-r from-red-500 to-pink-500 text-white;
+      }
+
+      &.p-toast-message-info {
+        @apply bg-gradient-to-r from-blue-500 to-indigo-500 text-white;
+      }
+
+      &.p-toast-message-warn {
+        @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-white;
+      }
+    }
+  }
+
+  // Confirmation dialog enhancements
+  ::ng-deep .p-confirmdialog {
+    .p-dialog-content {
+      @apply bg-white rounded-lg shadow-xl;
+    }
+
+    .p-confirmdialog-message {
+      @apply text-gray-700;
+    }
+
+    .p-confirmdialog-icon {
+      @apply text-red-500;
+    }
+  }
+
+  // Pagination enhancements
+  ::ng-deep .p-paginator {
+    @apply bg-white border-t border-gray-200;
+
+    .p-paginator-pages {
+      .p-paginator-page {
+        @apply border border-gray-300 text-gray-700 transition-all duration-200;
+
+        &:hover {
+          @apply bg-indigo-50 border-indigo-300;
+        }
+
+        &.p-highlight {
+          @apply bg-indigo-600 text-white border-indigo-600;
+        }
+      }
+    }
+  }
+
+  // Responsive utilities
+  .responsive-container {
+    @apply max-w-7xl mx-auto;
+
+    @media (max-width: 640px) {
+      @apply px-4;
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      @apply px-6;
+    }
+
+    @media (min-width: 1025px) {
+      @apply px-8;
+    }
+  }
+
+  // Dark mode support (if needed)
+  @media (prefers-color-scheme: dark) {
+    .missions-list-container {
+      @apply bg-gradient-to-br from-gray-900 to-indigo-900;
+
+      .mission-card {
+        @apply bg-gray-800 border-gray-700 text-white;
+      }
+
+      .stats-card {
+        @apply bg-gray-800 border-gray-700 text-white;
+      }
+    }
+  }
+
+  // Print styles
+  @media print {
+    .missions-list-container {
+      @apply bg-white p-0;
+
+      .action-button,
+      .filter-section,
+      .bulk-actions {
+        @apply hidden;
+      }
+    }
+  }
+
+  /* Enhanced Action Buttons */
+  .action-button-group {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .action-button-group .p-button {
+    transition: all 0.2s ease-in-out;
+    border-radius: 0.5rem;
+    min-width: 2rem;
+    height: 2rem;
+  }
+
+  .action-button-group .p-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Custom button color classes */
+  .btn-green {
+    color: #10b981 !important;
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    border-color: #10b981 !important;
+  }
+
+  .btn-blue {
+    color: #3b82f6 !important;
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    border-color: #3b82f6 !important;
+  }
+
+  .btn-purple {
+    color: #8b5cf6 !important;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+    border-color: #8b5cf6 !important;
+  }
+
+  .btn-orange {
+    color: #f97316 !important;
+    background: linear-gradient(135deg, #f97316, #ea580c) !important;
+    border-color: #f97316 !important;
+  }
+
+  .btn-red {
+    color: #ef4444 !important;
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    border-color: #ef4444 !important;
+  }
+
+  /* Table action improvements */
+  .table-actions {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .table-actions .p-button {
+    transition: all 0.2s ease-in-out;
+    border-radius: 0.375rem;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+
+  .table-actions .p-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Bulk actions improvements */
+  .bulk-actions-bar {
+    background: linear-gradient(135deg, #eef2ff, #f3e8ff);
+    border: 1px solid #c7d2fe;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .bulk-actions-bar .bulk-icon {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    .action-button-group {
+      gap: 0.125rem;
+    }
+    
+    .action-button-group .p-button {
+      min-width: 1.5rem;
+      height: 1.5rem;
+      font-size: 0.625rem;
+    }
+    
+    .table-actions {
+      gap: 0.125rem;
+    }
+    
+    .table-actions .p-button {
+      min-width: 1.5rem;
+      height: 1.5rem;
+      font-size: 0.625rem;
+    }
+  }
+
+  /* Enhanced tooltip styling */
+  .p-tooltip {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Button loading states */
+  .p-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* Focus states for accessibility */
+  .p-button:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .bulk-actions-bar {
+      background: linear-gradient(135deg, #1e1b4b, #2e1065);
+      border-color: #4c1d95;
+    }
+  }
+}

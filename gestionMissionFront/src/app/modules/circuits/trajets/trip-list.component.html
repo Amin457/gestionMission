@@ -1,0 +1,501 @@
+<div class="missions-container">
+  <p-toast position="top-right" styleClass="p-toast-sm"></p-toast>
+
+  <!-- Enhanced Header with Search and Actions -->
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      <div class="flex-1">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          Trip Management
+        </h1>
+        <p class="text-gray-600 text-sm">
+          Manage and monitor mission trips efficiently with advanced filtering
+        </p>
+      </div>
+      
+      <div class="flex flex-wrap gap-3">
+        <!-- Filter Toggle -->
+        <button
+          type="button"
+          [class]="isFilterCollapsed ? 'bg-indigo-50 text-indigo-600 border-indigo-200' : 'bg-indigo-600 text-white'"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg border font-medium transition-all duration-200 hover:shadow-md"
+          (click)="isFilterCollapsed = !isFilterCollapsed"
+        >
+          <i class="pi pi-filter"></i>
+          Filters
+          <span *ngIf="hasActiveFilters()" class="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+            {{ getActiveFilters().length }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Filter Card -->
+  <p-card
+    *ngIf="!isFilterCollapsed"
+    styleClass="p-0 border-gray-200 mb-6 bg-white rounded-xl shadow-lg border"
+  >
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+          <i class="pi pi-filter text-indigo-600"></i>
+          Advanced Filters
+        </h3>
+        <button
+          type="button"
+          class="text-gray-500 hover:text-gray-700 transition-colors"
+          (click)="isFilterCollapsed = true"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+          </div>
+
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="space-y-4">
+        <!-- Filter Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Mission Type Filter -->
+        <div>
+            <label class="block mb-2 text-sm font-medium text-gray-700">Mission Type</label>
+          <p-dropdown
+            formControlName="type"
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select type"
+            styleClass="w-full"
+            [showClear]="true"
+              inputStyleClass="p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <!-- Status Filter -->
+          <div>
+            <label class="block mb-2 text-sm font-medium text-gray-700">Status</label>
+            <p-dropdown
+              formControlName="status"
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select status"
+              styleClass="w-full"
+              [showClear]="true"
+              inputStyleClass="p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+              appendTo="body"
+          ></p-dropdown>
+        </div>
+
+          <!-- Driver Filter -->
+        <div>
+            <label class="block mb-2 text-sm font-medium text-gray-700">Driver</label>
+          <p-dropdown
+            formControlName="driverId"
+            [options]="users"
+            optionLabel="fullName"
+            optionValue="userId"
+            [filter]="true"
+            filterBy="fullName"
+            placeholder="Select driver"
+            styleClass="w-full"
+              inputStyleClass="p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            [showClear]="true"
+              appendTo="body"
+          ></p-dropdown>
+          </div>
+        </div>
+
+        <!-- Date Range Filters -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block mb-2 text-sm font-medium text-gray-700">Desired Date Range</label>
+            <div class="flex gap-2">
+              <input
+                type="date"
+                formControlName="desiredDateStart"
+                placeholder="Start date"
+                class="w-full p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 native-date-input"
+              />
+              <input
+                type="date"
+                formControlName="desiredDateEnd"
+                placeholder="End date"
+                class="w-full p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 native-date-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Filters Display -->
+        <div *ngIf="hasActiveFilters()" class="pt-4 border-t border-gray-200">
+          <div class="flex flex-wrap gap-2">
+            <span 
+              *ngFor="let filter of getActiveFilters()" 
+              class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full"
+            >
+              {{ filter.label }}: {{ filter.value }}
+          <button
+                type="button"
+                class="text-indigo-600 hover:text-indigo-800 transition-colors"
+                (click)="removeFilter(filter.key)"
+              >
+                <i class="pi pi-times text-xs"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter Actions -->
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium"
+            (click)="clearFilters()"
+          >
+            <i class="pi pi-refresh mr-2"></i>
+            Reset
+          </button>
+          <button
+            type="submit"
+            class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+          >
+            <i class="pi pi-filter mr-2"></i>
+            Apply Filters
+          </button>
+        </div>
+      </form>
+    </div>
+  </p-card>
+
+  <!-- Missions Grid -->
+  <div class="missions-grid" [class.filtered]="filterForm.value.type || filterForm.value.status || filterForm.value.driverId || filterForm.value.desiredDateStart || filterForm.value.desiredDateEnd">
+    <!-- Loading State -->
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading missions...</span>
+      </div>
+    </div>
+
+    <!-- Missions Cards -->
+    <div class="mission-card" *ngFor="let mission of missions; trackBy: trackByMissionId">
+      <div class="mission-header">
+        <div class="mission-type">
+          <span class="type-badge" [class]="getTypeBadgeClass(mission.type)">
+                {{ getTypeLabel(mission.type) }}
+              </span>
+        </div>
+        <div class="mission-status">
+          <span class="status-badge" [class]="getStatusBadgeClass(mission.status)">
+                {{ getStatusLabel(mission.status) }}
+              </span>
+        </div>
+      </div>
+
+      <div class="mission-content">
+        <div class="mission-info">
+          <div class="info-row">
+            <i class="pi pi-briefcase"></i>
+            <span class="info-label">Service:</span>
+            <span class="info-value">{{ mission.service }}</span>
+          </div>
+          <div class="info-row">
+            <i class="pi pi-hashtag"></i>
+            <span class="info-label">Tasks:</span>
+            <span class="info-value">{{ (mission.tasks || []).length }}</span>
+          </div>
+          <div class="info-row">
+            <i class="pi pi-calendar"></i>
+            <span class="info-label">Date:</span>
+            <span class="info-value">{{ mission.desiredDate | date: 'MMM dd, yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- Expanded Details (shown when not filtering) -->
+        <div class="mission-details" *ngIf="!filterForm.value.type && !filterForm.value.status && !filterForm.value.driverId && !filterForm.value.desiredDateStart && !filterForm.value.desiredDateEnd">
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Requester</span>
+              <span class="detail-value">{{ mission.requester }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Driver</span>
+              <span class="detail-value">{{ mission.driver }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Receiver</span>
+              <span class="detail-value">{{ mission.receiver }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Created</span>
+              <span class="detail-value">{{ mission.systemDate | date: 'MMM dd, HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-actions">
+                <button
+                  pButton
+                  icon="pi pi-eye"
+          class="action-btn view-btn"
+                  (click)="viewTrip(mission)"
+                  pTooltip="View Details"
+                  tooltipPosition="top"
+                ></button>
+                <button
+                  pButton
+                  icon="pi pi-car"
+          class="action-btn generate-btn"
+                  (click)="generateTrip(mission.missionId)"
+                  pTooltip="Generate Trip"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && missions.length === 0">
+      <div class="empty-content">
+        <i class="pi pi-inbox"></i>
+        <h3>No missions found</h3>
+        <p>{{ (filterForm.value.type || filterForm.value.status || filterForm.value.driverId || filterForm.value.desiredDateStart || filterForm.value.desiredDateEnd) ? 'Try adjusting your filters' : 'No missions available at the moment' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-section" *ngIf="totalRecords > 0">
+      <p-paginator
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        (onPageChange)="onPageChange($event)"
+      styleClass="modern-paginator"
+      ></p-paginator>
+  </div>
+
+  <!-- Circuit Details Dialog -->
+  <p-dialog
+    header="Circuit Details"
+    [(visible)]="displayTripDialog"
+    [style]="{ width: '80rem', maxWidth: '95vw' }"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="p-dialog-xl circuit-details-dialog"
+    [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+
+  >
+    <div class="circuit-dialog-content">
+      <!-- <div class="circuit-dialog-header">
+        <div class="circuit-info-header">
+          <div class="circuit-title-section">
+            <h2 class="circuit-title">
+              <i class="pi pi-sitemap"></i>
+              Circuit Overview
+            </h2>
+            <p class="circuit-subtitle">Detailed view of the mission circuit and routes</p>
+          </div>
+          <div class="circuit-stats">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="pi pi-map-marker"></i>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ selectedCircuit?.routes?.length || 0 }}</span>
+                <span class="stat-label">Total Routes</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="pi pi-calendar"></i>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ selectedCircuit?.departureDate | date: 'MMM dd' }}</span>
+                <span class="stat-label">Departure Date</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="pi pi-car"></i>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ getTotalDistance() }} km</span>
+                <span class="stat-label">Total Distance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="circuit-dialog-body">
+        <div class="circuit-content-grid">
+          <!-- Route Overview Section -->
+          <div class="route-overview-section">
+            <div class="route-overview-content">
+              <div class="route-main-info">
+                <div class="route-points">
+                  <span class="point departure">{{ selectedCircuit?.departureSiteName }}</span>
+                  <div class="route-arrow">
+                    <i class="pi pi-arrow-right"></i>
+                  </div>
+                  <span class="point arrival">{{ selectedCircuit?.arrivalSiteName }}</span>
+                </div>
+                <div class="route-stats">
+                  <span class="stat">
+                    <i class="pi pi-list"></i>
+                    {{ selectedCircuit?.routes?.length || 0 }}
+                  </span>
+                  <span class="stat">
+                    <i class="pi pi-calendar"></i>
+                    {{ selectedMission?.desiredDate | date:'shortDate' }}
+                  </span>
+                  <span class="stat">
+                    <i class="pi pi-car"></i>
+                    {{ getTotalDistance() }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area - Side by Side Layout -->
+          <div class="main-content-area">
+            <!-- Circuit Steps Section -->
+            <div class="circuit-steps-section">
+              <div class="section-header">
+                <h3 class="section-title">
+                  <i class="pi pi-list"></i>
+                  Circuit Steps
+                </h3>
+                <span class="step-counter">Step {{ activeStepIndex + 1 }} of {{ selectedCircuit?.routes?.length || 0 }}</span>
+              </div>
+              
+              <div class="steps-container">
+                <div 
+                  *ngFor="let route of selectedCircuit?.routes; let i = index; trackBy: trackByRouteId"
+                  class="step-item"
+                  [class.active]="i === activeStepIndex"
+                  [class.completed]="i < activeStepIndex"
+                  (click)="setActiveStep(i)"
+                >
+                  <div class="step-marker">
+                    <div class="marker-content">
+                      <i *ngIf="i < activeStepIndex" class="pi pi-check"></i>
+                      <span *ngIf="i >= activeStepIndex">{{ i + 1 }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="step-content">
+                    <div class="step-route-info">
+                      <div class="route-points">
+                        <span class="point departure">{{ route.departureSiteName }}</span>
+                        <div class="route-line">
+                          <i class="pi pi-arrow-right"></i>
+                        </div>
+                        <span class="point arrival">{{ route.arrivalSiteName }}</span>
+                      </div>
+                      <div class="route-meta">
+                        <span class="distance">{{ route.distanceKm.toFixed(2) }} km</span>
+                        <span class="order">Step {{ route.ordre }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="i < (selectedCircuit?.routes?.length || 0) - 1" class="step-connector"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selected Route Details Section -->
+            <div class="route-details-section" *ngIf="selectedCircuit?.routes?.[activeStepIndex] as currentRoute">
+              <div class="section-header">
+                <h3 class="section-title">
+                  <i class="pi pi-info-circle"></i>
+                  Route {{ currentRoute.ordre }} Details
+                </h3>
+                <span class="route-distance">{{ currentRoute.distanceKm.toFixed(2) }} km</span>
+              </div>
+              
+              <div class="route-details-grid">
+                <div class="detail-card">
+                  <div class="detail-icon">
+                    <i class="pi pi-sort-numeric-up"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Order</span>
+                    <span class="detail-value">{{ currentRoute.ordre }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-card">
+                  <div class="detail-icon">
+                    <i class="pi pi-map-marker"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Departure</span>
+                    <span class="detail-value">{{ currentRoute.departureSiteName }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-card">
+                  <div class="detail-icon">
+                    <i class="pi pi-map-marker"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Arrival</span>
+                    <span class="detail-value">{{ currentRoute.arrivalSiteName }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-card">
+                  <div class="detail-icon">
+                    <i class="pi pi-car"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Distance</span>
+                    <span class="detail-value">{{ currentRoute.distanceKm.toFixed(2) }} km</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <div class="footer-actions">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-chevron-left"
+            label="Previous"
+            class="p-button-outlined"
+            [disabled]="activeStepIndex === 0"
+            (click)="previousStep()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-chevron-right"
+            label="Next"
+            class="p-button-outlined"
+            [disabled]="activeStepIndex >= (selectedCircuit?.routes?.length || 0) - 1"
+            (click)="nextStep()"
+          ></button>
+        </div>
+      <button
+        pButton
+        type="button"
+        label="Close"
+          class="p-button-primary"
+        (click)="displayTripDialog = false"
+      ></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div> 

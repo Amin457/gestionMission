@@ -1,0 +1,218 @@
+<div class="card p-4">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-800">Sites Management</h2>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        label="Add Site"
+        class="p-button-success"
+        (click)="showAddEditDialog()"
+      ></button>
+    </div>
+  
+    <p-table
+      [value]="sites"
+      [paginator]="false"
+      [rows]="10"
+      [scrollable]="true"
+      scrollHeight="600px"
+      [loading]="loading"
+      sortMode="multiple"
+      styleClass="p-datatable-striped p-datatable-sm"
+      responsiveLayout="scroll"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
+          <th pSortableColumn="address">Address <p-sortIcon field="address"></p-sortIcon></th>
+          <th pSortableColumn="phone">Phone <p-sortIcon field="phone"></p-sortIcon></th>
+          <th pSortableColumn="cityName">City <p-sortIcon field="cityName"></p-sortIcon></th>
+          <th pSortableColumn="latitude">Latitude <p-sortIcon field="latitude"></p-sortIcon></th>
+          <th pSortableColumn="longitude">Longitude <p-sortIcon field="longitude"></p-sortIcon></th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-site>
+        <tr>
+          <td>{{ site.name }}</td>
+          <td>{{ site.type }}</td>
+          <td>{{ site.address }}</td>
+          <td>{{ site.phone }}</td>
+          <td>{{ site.cityName }}</td>
+          <td>{{ site.latitude }}</td>
+          <td>{{ site.longitude }}</td>
+          <td class="flex justify-center gap-2">
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-sm p-button-info"
+              (click)="showAddEditDialog(site)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-sm p-button-danger"
+              (click)="confirmDelete(site)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-6 text-gray-500">
+            <i class="pi pi-info-circle mr-2 text-lg"></i>
+            No sites found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <!-- Pagination -->
+    <div>
+      <p-paginator
+        [rows]="pageSize"
+        [totalRecords]="totalRecords"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        (onPageChange)="onPageChange($event)"
+      ></p-paginator>
+    </div>
+  </div>
+  
+  <p-dialog
+    [(visible)]="displayDialog"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [style]="{ width: '800px' }"
+    header="{{ isEditing ? 'Edit Site' : 'Add Site' }}"
+  >
+    <form [formGroup]="siteForm" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Left Column -->
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              pInputText
+              id="name"
+              type="text"
+              formControlName="name"
+              autofocus
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              [class.p-invalid]="siteForm.get('name')?.invalid && siteForm.get('name')?.touched"
+            />
+            <small class="p-error text-sm" *ngIf="getFieldError('name')">
+              {{ getFieldError('name') }}
+            </small>
+          </div>
+
+          <div>
+            <label for="cityId" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <p-dropdown
+              id="cityId"
+              [options]="cities"
+              formControlName="cityId"
+              optionLabel="name"
+              optionValue="cityId"
+              [filter]="true"
+              filterBy="name"   
+              placeholder="Select a City"
+              class="w-full"
+              [class.p-invalid]="siteForm.get('cityId')?.invalid && siteForm.get('cityId')?.touched"
+            ></p-dropdown>
+            <small class="p-error text-sm" *ngIf="getFieldError('cityId')">
+              {{ getFieldError('cityId') }}
+            </small>
+          </div>
+
+          <div>
+            <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type : Suppliers , depot or others </label>
+            <input
+              pInputText
+              id="type"
+              type="text"
+              formControlName="type"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              [class.p-invalid]="siteForm.get('type')?.invalid && siteForm.get('type')?.touched"
+            />
+            <small class="p-error text-sm" *ngIf="getFieldError('type')">
+              {{ getFieldError('type') }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-4">
+          <div>
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <input
+              pInputText
+              id="address"
+              type="text"
+              formControlName="address"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              [class.p-invalid]="siteForm.get('address')?.invalid && siteForm.get('address')?.touched"
+            />
+            <small class="p-error text-sm" *ngIf="getFieldError('address')">
+              {{ getFieldError('address') }}
+            </small>
+          </div>
+
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input
+              pInputText
+              id="phone"
+              type="text"
+              formControlName="phone"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              [class.p-invalid]="siteForm.get('phone')?.invalid && siteForm.get('phone')?.touched"
+            />
+            <small class="p-error text-sm" *ngIf="getFieldError('phone')">
+              {{ getFieldError('phone') }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Section - Full Width -->
+      <div class="mt-4" (click)="$event.stopPropagation()">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+        <div class="border rounded-md overflow-hidden">
+          <app-map-picker
+            [latitude]="siteForm.get('latitude')?.value || 36.8065"
+            [longitude]="siteForm.get('longitude')?.value || 10.1815"
+            (coordinatesChange)="onCoordinatesChange($event)"
+          ></app-map-picker>
+        </div>
+        <small class="text-sm text-gray-500 mt-1">
+          Click on the map to select the location or enter coordinates manually
+        </small>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-2 pt-4">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          label="Cancel"
+          class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-2 rounded-md"
+          (click)="displayDialog = false"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-check"
+          [label]="isEditing ? 'Update' : 'Create'"
+          class="bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-md"
+          [disabled]="loading"
+          (click)="onSubmit()"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+  
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>

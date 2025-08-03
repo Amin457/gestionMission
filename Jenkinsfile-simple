@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE_BACKEND = 'projetpfe-backend'
+        DOCKER_IMAGE_FRONTEND = 'projetpfe-frontend'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "Checked out code from ${env.GIT_BRANCH}"
+            }
+        }
+        
+        stage('Build Backend') {
+            steps {
+                dir('gestionMissionBack') {
+                    script {
+                        echo "Building .NET Backend..."
+                        bat 'dotnet restore'
+                        bat 'dotnet build --configuration Release --no-restore'
+                        echo "Backend build completed successfully"
+                    }
+                }
+            }
+        }
+        
+        stage('Build Frontend') {
+            steps {
+                dir('gestionMissionFront') {
+                    script {
+                        echo "Building Angular Frontend..."
+                        bat 'npm ci'
+                        bat 'npm run build'
+                        echo "Frontend build completed successfully"
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    echo "Building Docker images..."
+                    sh "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
+                    sh "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
+                    echo "Docker images built successfully"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    echo "Deploying with Docker Compose..."
+                    sh "docker-compose down"
+                    sh "docker-compose up -d"
+                    sh "sleep 30"
+                    sh "docker-compose ps"
+                    echo "Deployment completed successfully"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            sh "docker image prune -f"
+            sh "docker container prune -f"
+            echo "Pipeline completed"
+        }
+        success {
+            echo "Pipeline succeeded!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+    }
+} 

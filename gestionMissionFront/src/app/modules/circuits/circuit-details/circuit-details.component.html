@@ -1,0 +1,127 @@
+<div class="circuit-details-container">
+  <div class="circuit-header">
+    <div class="circuit-title">
+      <i class="pi pi-sitemap"></i>
+      <h2>Circuit Details</h2>
+    </div>
+    <div class="circuit-summary">
+      <div class="summary-item">
+        <span class="summary-label">Total Routes</span>
+        <span class="summary-value">{{ circuit.routes.length }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Departure Date</span>
+        <span class="summary-value">{{ circuit.departureDate | date: 'MMM dd, yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="circuit-content">
+    <!-- Route Overview -->
+    <div class="route-overview">
+      <div class="overview-header">
+        <h3>Route Overview</h3>
+        <div class="route-stats">
+          <div class="stat-item">
+            <i class="pi pi-map-marker"></i>
+            <span>From: {{ circuit.departureSiteName }}</span>
+          </div>
+          <div class="stat-item">
+            <i class="pi pi-map-marker"></i>
+            <span>To: {{ circuit.arrivalSiteName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Circuit Steps -->
+    <div class="circuit-steps">
+      <div class="steps-container">
+        <div 
+          *ngFor="let route of circuit.routes; let i = index; let last = last"
+          class="step-item"
+          [class.active]="i === activeStepIndex"
+          [class.completed]="i < activeStepIndex"
+          (click)="activeStepIndex = i"
+        >
+          <div class="step-marker">
+            <div class="marker-content">
+              <i *ngIf="i < activeStepIndex" class="pi pi-check"></i>
+              <span *ngIf="i >= activeStepIndex">{{ i + 1 }}</span>
+            </div>
+          </div>
+          
+          <div class="step-content">
+            <div class="step-route">
+              <div class="route-points">
+                <span class="point departure">{{ route.departureSiteName }}</span>
+                <div class="route-line">
+                  <i class="pi pi-arrow-right"></i>
+                </div>
+                <span class="point arrival">{{ route.arrivalSiteName }}</span>
+              </div>
+              <div class="route-info">
+                <span class="distance">{{ route.distanceKm.toFixed(2) }} km</span>
+                <span class="order">Step {{ route.ordre }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="!last" class="step-connector"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Route Details -->
+    <div *ngIf="circuit.routes[activeStepIndex] as currentRoute" class="route-details">
+      <div class="details-card">
+        <div class="details-header">
+          <h3>Route {{ currentRoute.ordre }} Details</h3>
+          <span class="route-distance">{{ currentRoute.distanceKm.toFixed(2) }} km</span>
+        </div>
+        
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="pi pi-sort-numeric-up"></i>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Order</span>
+              <span class="detail-value">{{ currentRoute.ordre }}</span>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Departure</span>
+              <span class="detail-value">{{ currentRoute.departureSiteName }}</span>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Arrival</span>
+              <span class="detail-value">{{ currentRoute.arrivalSiteName }}</span>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="pi pi-car"></i>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Distance</span>
+              <span class="detail-value">{{ currentRoute.distanceKm.toFixed(2) }} km</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

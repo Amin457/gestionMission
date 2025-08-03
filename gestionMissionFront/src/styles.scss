@@ -1,0 +1,281 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === External Fonts and Icons === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'boxicons/css/boxicons.min.css';
+
+.card {
+  @apply bg-white rounded-2xl shadow-md p-4 sm:p-6;
+}
+
+/* === Global Small Size Configuration === */
+:root {
+  /* Base font size - slightly smaller than default */
+  font-size: 14px;
+  
+  /* Global spacing scale */
+  --spacing-xs: 0.15rem;
+  --spacing-sm: 0.3rem;
+  --spacing-md: 0.6rem;
+  --spacing-lg: 0.9rem;
+  --spacing-xl: 1.2rem;
+}
+
+/* Sidebar - Keep Original Size */
+.sidebar {
+  font-size: 16px !important;
+  
+  * {
+    font-size: inherit !important;
+  }
+  
+  .bx, i {
+    font-size: 1rem !important;
+  }
+  
+  .logo_name {
+    font-size: 1.1rem !important;
+  }
+  
+  .link_name {
+    font-size: 0.95rem !important;
+  }
+}
+
+/* Global PrimeNG Component Small Sizing - Exclude Sidebar */
+.p-component {
+  font-size: 0.9rem !important;
+  
+  /* Buttons */
+  &.p-button {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 0.375rem !important;
+    
+    &.p-button-sm {
+      padding: 0.3rem 0.6rem !important;
+      font-size: 0.8rem !important;
+    }
+    
+    .p-button-icon {
+      font-size: 0.8rem !important;
+    }
+  }
+  
+  /* Input fields */
+  &.p-inputtext,
+  &.p-dropdown,
+  &.p-calendar {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 0.375rem !important;
+  }
+  
+  /* Dropdowns */
+  &.p-dropdown {
+    .p-dropdown-trigger {
+      width: 1.5rem !important;
+      
+      .p-dropdown-trigger-icon {
+        font-size: 0.8rem !important;
+      }
+    }
+    
+    .p-dropdown-panel {
+      font-size: 0.85rem !important;
+      
+      .p-dropdown-item {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.85rem !important;
+      }
+    }
+  }
+  
+  /* Tables */
+  &.p-datatable {
+    font-size: 0.85rem !important;
+    
+    .p-datatable-header {
+      padding: 0.6rem !important;
+      font-size: 0.95rem !important;
+    }
+    
+    .p-datatable-thead > tr > th {
+      padding: 0.6rem 0.8rem !important;
+      font-size: 0.85rem !important;
+    }
+    
+    .p-datatable-tbody > tr > td {
+      padding: 0.6rem 0.8rem !important;
+      font-size: 0.85rem !important;
+    }
+    
+    .p-paginator {
+      padding: 0.3rem !important;
+      
+      .p-paginator-page,
+      .p-paginator-next,
+      .p-paginator-prev,
+      .p-paginator-first,
+      .p-paginator-last {
+        min-width: 2rem !important;
+        height: 2rem !important;
+        font-size: 0.8rem !important;
+      }
+    }
+  }
+  
+  /* Dialogs */
+  &.p-dialog {
+    .p-dialog-header {
+      padding: 0.8rem 1.1rem !important;
+      font-size: 1.05rem !important;
+    }
+    
+    .p-dialog-content {
+      padding: 0.8rem 1.1rem !important;
+      font-size: 0.85rem !important;
+    }
+    
+    .p-dialog-footer {
+      padding: 0.6rem 1.1rem !important;
+    }
+  }
+  
+  /* Cards */
+  &.p-card {
+    .p-card-header {
+      padding: 0.75rem 1rem !important;
+      font-size: 0.9rem !important;
+    }
+    
+    .p-card-body {
+      padding: 0.75rem 1rem !important;
+      font-size: 0.8rem !important;
+    }
+    
+    .p-card-footer {
+      padding: 0.5rem 1rem !important;
+    }
+  }
+  
+  /* Toast messages */
+  &.p-toast {
+    .p-toast-message {
+      margin: 0.25rem !important;
+      
+      .p-toast-message-content {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.8rem !important;
+      }
+    }
+  }
+  
+  /* Confirm dialogs */
+  &.p-confirm-dialog {
+    .p-confirm-dialog-message {
+      font-size: 0.8rem !important;
+      margin: 0.5rem 0 !important;
+    }
+  }
+  
+  /* Checkboxes */
+  &.p-checkbox {
+    .p-checkbox-box {
+      width: 1rem !important;
+      height: 1rem !important;
+      
+      .p-checkbox-icon {
+        font-size: 0.625rem !important;
+      }
+    }
+  }
+  
+  /* Calendar */
+  &.p-calendar {
+    .p-datepicker {
+      font-size: 0.75rem !important;
+      
+      .p-datepicker-header {
+        padding: 0.25rem 0.5rem !important;
+        
+        .p-datepicker-title {
+          font-size: 0.75rem !important;
+        }
+      }
+      
+      .p-datepicker-calendar {
+        th, td {
+          padding: 0.125rem !important;
+          font-size: 0.625rem !important;
+        }
+      }
+    }
+  }
+}
+
+/* Global Tailwind Component Sizing */
+.btn-sm {
+  @apply px-3 py-1.5 text-xs;
+}
+
+.card-sm {
+  @apply p-3 text-sm;
+}
+
+.input-sm {
+  @apply px-2.5 py-1.5 text-xs;
+}
+
+.badge-sm {
+  @apply px-2 py-0.5 text-xs;
+}
+
+/* Global Typography Adjustments */
+h1 { font-size: 1.5rem !important; }
+h2 { font-size: 1.25rem !important; }
+h3 { font-size: 1.125rem !important; }
+h4 { font-size: 1rem !important; }
+h5 { font-size: 0.875rem !important; }
+h6 { font-size: 0.75rem !important; }
+
+/* Form labels */
+label {
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+}
+
+/* General text */
+p, span, div {
+  font-size: 0.85rem;
+}
+
+/* Icons - make them smaller globally */
+.pi, .bx, i {
+  font-size: 0.8rem !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    font-size: 13px;
+  }
+  
+  .p-component {
+    font-size: 0.8rem !important;
+    
+    &.p-button {
+      padding: 0.3rem 0.6rem !important;
+      font-size: 0.75rem !important;
+    }
+    
+    &.p-inputtext,
+    &.p-dropdown,
+    &.p-calendar {
+      padding: 0.3rem 0.45rem !important;
+      font-size: 0.8rem !important;
+    }
+  }
+}

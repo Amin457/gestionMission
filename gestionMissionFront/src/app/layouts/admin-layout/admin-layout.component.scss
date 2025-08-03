@@ -1,0 +1,40 @@
+.home-section {
+    position: relative;
+    background: #f3f4f6;
+    min-height: 100vh;
+    left: 240px;
+    width: calc(100% - 240px);
+    transition: all 0.5s ease;
+  
+    &.sidebar-collapsed {
+      left: 78px;
+      width: calc(100% - 78px);
+    }
+  
+    .main-content {
+      padding: 10px;
+      //zoom: 0.77;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 240px;
+      
+      &.close {
+        width: 0;
+        padding: 0;
+      }
+    }
+    
+    .home-section {
+      left: 240px;
+      width: calc(100% - 240px);
+      
+      &.sidebar-collapsed {
+        left: 40;
+        width: 100%;
+      }
+    }
+  }
+  

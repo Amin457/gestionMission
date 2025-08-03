@@ -1,0 +1,63 @@
+
+<div class="sidebar rounded-xl shadow-lg border-2 border-gradient-to-r from-indigo-100 to-purple-100" [ngClass]="{'close': isCollapsed}">
+  <div class="logo-details">
+    <i class='bx bx-task'></i>
+    <span class="logo_name">TaskTrail </span>
+  </div>
+  
+  <div class="sidebar-content">
+    <ul class="nav-links">
+      <li *ngFor="let item of menuItems"
+          [class.active]="isActive(item)"
+          [class.parent-active]="hasActiveChild(item)"
+          (mouseenter)="onMouseEnter(item, $event)"
+          (mouseleave)="onMouseLeave()">
+        
+        <a *ngIf="!item.children" 
+           [routerLink]="item.name === 'Logout' ? null : item.link" 
+           class="nav-link"
+           (click)="item.name === 'Logout' ? onItemClick(item, $event) : null">
+          <i class='bx {{item.icon}}'></i>
+          <span class="link_name">{{item.name}}</span>
+        </a>
+        
+        <div *ngIf="item.children" class="menu-item">
+          <a class="nav-link" (click)="toggleSubmenu(item, $event)">
+            <i class='bx {{item.icon}}'></i>
+            <span class="link_name">{{item.name}}</span>
+            <i class='bx bx-chevron-down arrow' [class.rotated]="item.expanded"></i>
+          </a>
+          
+          <ul class="sub-menu" [@submenuAnimation]="item.expanded ? 'visible' : 'hidden'" *ngIf="!isCollapsed">
+            <li *ngFor="let child of item.children" 
+                [class.submenu-active]="isChildActive(child)">
+              <a [routerLink]="child.link" class="sub-link">
+                <span class="submenu-bullet"></span>
+                {{child.name}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="submenu-popup" 
+       *ngIf="showPopup && isCollapsed && hoveredItem?.children"
+       [ngStyle]="popupPosition"
+       (mouseleave)="closePopup()">
+    <div class="popup-header">
+      <i class='bx {{hoveredItem.icon}}'></i>
+      <span>{{hoveredItem.name}}</span>
+    </div>
+    <ul>
+      <li *ngFor="let child of hoveredItem.children" 
+          [class.submenu-active]="isChildActive(child)">
+        <a [routerLink]="child.link">
+          <span class="submenu-bullet"></span>
+          {{child.name}}
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

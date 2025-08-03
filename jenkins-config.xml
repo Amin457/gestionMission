@@ -1,0 +1,193 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1309.vd2294d3341a_f">
+  <description>CI/CD Pipeline for ProjetPfe - Mission Management System</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.discarder.BuildDiscarderProperty>
+      <strategy class="hudson.plugins.discarder.LogRotator">
+        <daysToKeep>30</daysToKeep>
+        <numToKeep>50</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </hudson.plugins.discarder.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description>Branch to build</description>
+          <defaultValue>main</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>SKIP_TESTS</name>
+          <description>Skip running tests</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>DEPLOY</name>
+          <description>Deploy after successful build</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@3697.vb_490d892d1d69">
+    <script>pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE_BACKEND = 'projetpfe-backend'
+        DOCKER_IMAGE_FRONTEND = 'projetpfe-frontend'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        DOCKER_REGISTRY = 'your-registry.com'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "Checked out code from ${env.GIT_BRANCH}"
+            }
+        }
+        
+        stage('Build Backend') {
+            steps {
+                dir('gestionMissionBack') {
+                    script {
+                        echo "Building .NET Backend..."
+                        bat 'dotnet restore'
+                        bat 'dotnet build --configuration Release --no-restore'
+                        echo "Backend build completed successfully"
+                    }
+                }
+            }
+        }
+        
+        stage('Test Backend') {
+            when {
+                expression { params.SKIP_TESTS == false }
+            }
+            steps {
+                dir('gestionMissionBack') {
+                    script {
+                        echo "Running backend tests..."
+                        bat 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
+                        echo "Backend tests completed"
+                    }
+                }
+            }
+            post {
+                always {
+                    publishTestResults testResultsPattern: '**/test-results.trx'
+                }
+            }
+        }
+        
+        stage('Build Frontend') {
+            steps {
+                dir('gestionMissionFront') {
+                    script {
+                        echo "Building Angular Frontend..."
+                        bat 'npm ci'
+                        bat 'npm run build'
+                        echo "Frontend build completed successfully"
+                    }
+                }
+            }
+        }
+        
+        stage('Test Frontend') {
+            when {
+                expression { params.SKIP_TESTS == false }
+            }
+            steps {
+                dir('gestionMissionFront') {
+                    script {
+                        echo "Running frontend tests..."
+                        bat 'npm test -- --watch=false --browsers=ChromeHeadless --code-coverage'
+                        echo "Frontend tests completed"
+                    }
+                }
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Frontend Coverage Report'
+                    ])
+                }
+            }
+        }
+        
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    echo "Building Docker images..."
+                    sh "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
+                    sh "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
+                    echo "Docker images built successfully"
+                }
+            }
+        }
+        
+        stage('Test Docker Images') {
+            when {
+                expression { params.SKIP_TESTS == false }
+            }
+            steps {
+                script {
+                    echo "Testing Docker images..."
+                    sh "docker run --rm ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} dotnet test --configuration Release --no-build"
+                    echo "Docker image tests completed"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                expression { params.DEPLOY == true }
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    echo "Deploying with Docker Compose..."
+                    sh "docker-compose down"
+                    sh "docker-compose up -d"
+                    sh "sleep 30"
+                    sh "docker-compose ps"
+                    echo "Deployment completed successfully"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            sh "docker image prune -f"
+            sh "docker container prune -f"
+            echo "Pipeline completed"
+        }
+        success {
+            echo "Pipeline succeeded!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>H/5 * * * *</spec>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <disabled>false</disabled>
+</flow-definition> 

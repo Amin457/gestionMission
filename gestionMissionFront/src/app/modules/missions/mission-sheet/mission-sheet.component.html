@@ -1,0 +1,518 @@
+<div class="mission-sheet-container">
+  <!-- Toast for notifications -->
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="pi pi-spin pi-spinner"></i>
+      <p>Loading mission sheet...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-card">
+      <i class="pi pi-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+      <h3 class="text-xl font-semibold text-gray-800 mb-2">Error Loading Mission Sheet</h3>
+      <p class="text-gray-600 mb-4">{{ error }}</p>
+      <div class="flex gap-2">
+        <button pButton type="button" label="Try Again" icon="pi pi-refresh" 
+                class="p-button-outlined" (click)="loadMissionSheet(missionId)"></button>
+        <button pButton type="button" label="Go Back" icon="pi pi-arrow-left" 
+                class="p-button-text" (click)="goBack()"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mission Sheet Content -->
+  <div *ngIf="mission && !loading" class="mission-content">
+    <!-- Sticky Header with Actions -->
+    <div class="sticky-header">
+      <div class="header-content">
+        <div class="mission-title">
+          <div class="flex items-center gap-2">
+            <button pButton type="button" icon="pi pi-arrow-left" 
+                    class="p-button-text p-button-sm" (click)="goBack()" 
+                    pTooltip="Go back to missions list"></button>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Mission Sheet
+            </h1>
+          </div>
+          <p class="text-gray-600 text-sm">Mission #{{ mission.missionId }} - {{ mission.service }}</p>
+        </div>
+        
+        <div class="header-actions">
+          <button pButton type="button" icon="pi pi-print" label="Print" 
+                  class="p-button-outlined mr-2" (click)="printSheet()" 
+                  pTooltip="Print mission sheet"></button>
+          <button pButton type="button" icon="pi pi-download" label="Export PDF" 
+                  class="p-button-outlined mr-2" (click)="exportToPDF()" 
+                  pTooltip="Export as PDF"></button>
+          <button pButton type="button" icon="pi pi-file-excel" label="Export CSV" 
+                  class="p-button-outlined" (click)="exportToCSV()" 
+                  pTooltip="Export as CSV"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Statistics Dashboard -->
+    <div class="stats-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon bg-blue-100 text-blue-600">
+            <i class="pi pi-list"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ missionStats.totalTasks }}</h3>
+            <p>Total Tasks</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon bg-green-100 text-green-600">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ missionStats.completedTasks }}</h3>
+            <p>Completed</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon bg-yellow-100 text-yellow-600">
+            <i class="pi pi-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ missionStats.inProgressTasks }}</h3>
+            <p>In Progress</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon bg-purple-100 text-purple-600">
+            <i class="pi pi-dollar"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ missionStats.totalCosts | currency:'USD':'symbol':'1.0-0' }}</h3>
+            <p>Total Cost</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon bg-orange-100 text-orange-600">
+            <i class="pi pi-box"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ missionStats.totalArticles }}</h3>
+            <p>Articles</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon bg-red-100 text-red-600">
+            <i class="pi pi-chart-bar"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ missionStats.totalWeight | number:'1.1-1' }} kg</h3>
+            <p>Total Weight</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Status Timeline -->
+    <div class="timeline-section">
+      <div class="timeline-container">
+        <div class="timeline-item" [class.active]="mission.status >= MissionStatus.Requested">
+          <div class="timeline-icon">
+            <i class="pi pi-file-edit"></i>
+          </div>
+          <div class="timeline-content">
+            <h4>Requested</h4>
+            <p>Mission request submitted</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" [class.active]="mission.status >= MissionStatus.Approved">
+          <div class="timeline-icon">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div class="timeline-content">
+            <h4>Approved</h4>
+            <p>Mission approved by management</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" [class.active]="mission.status >= MissionStatus.Planned">
+          <div class="timeline-icon">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="timeline-content">
+            <h4>Planned</h4>
+            <p>Mission scheduled and planned</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" [class.active]="mission.status >= MissionStatus.InProgress">
+          <div class="timeline-icon">
+            <i class="pi pi-play-circle"></i>
+          </div>
+          <div class="timeline-content">
+            <h4>In Progress</h4>
+            <p>Mission execution started</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item" [class.active]="mission.status >= MissionStatus.Completed">
+          <div class="timeline-icon">
+            <i class="pi pi-check-square"></i>
+          </div>
+          <div class="timeline-content">
+            <h4>Completed</h4>
+            <p>Mission successfully completed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Information Card -->
+    <div class="info-card">
+      <div class="card-header">
+        <h2 class="text-xl font-semibold text-white">
+          <i class="pi pi-info-circle mr-2"></i>
+          Mission Information
+        </h2>
+      </div>
+      
+      <div class="card-content">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Mission ID</label>
+            <span class="font-mono text-indigo-600">#{{ mission.missionId }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Service</label>
+            <span>{{ mission.service }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Type</label>
+            <p-tag [value]="getTypeLabel(mission.type)" 
+                   [severity]="mission.type === MissionType.Goods ? 'success' : 
+                               mission.type === MissionType.Financial ? 'warning' : 'info'">
+            </p-tag>
+          </div>
+          
+          <div class="info-item">
+            <label>Status</label>
+            <p-tag [value]="getStatusLabel(mission.status)" 
+                   [severity]="mission.status === MissionStatus.Completed ? 'success' : 
+                               mission.status === MissionStatus.InProgress ? 'warning' : 
+                               mission.status === MissionStatus.Rejected ? 'danger' : 'info'">
+            </p-tag>
+          </div>
+          
+          <div class="info-item">
+            <label>Desired Date</label>
+            <span>{{ mission.desiredDate | date:'mediumDate' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>System Date</label>
+            <span>{{ mission.systemDate | date:'mediumDate' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Receiver</label>
+            <span>{{ mission.receiver }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Progress</label>
+            <div class="progress-container">
+              <p-progressBar [value]="getTaskProgress()" [showValue]="true"></p-progressBar>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Participants Information -->
+    <div class="participants-section">
+      <div class="participants-grid">
+        <!-- Requester Info -->
+        <div class="participant-card">
+          <div class="participant-header">
+            <i class="pi pi-user text-blue-600"></i>
+            <h3>Requester</h3>
+          </div>
+          <div class="participant-content" *ngIf="requester">
+            <p class="participant-name">{{ requester.firstName }} {{ requester.lastName }}</p>
+            <p class="participant-role">{{ requester.role }}</p>
+            <p class="participant-contact">
+              <i class="pi pi-envelope mr-1"></i>{{ requester.email }}
+            </p>
+            <p class="participant-contact">
+              <i class="pi pi-phone mr-1"></i>{{ requester.phone }}
+            </p>
+          </div>
+          <div class="participant-content" *ngIf="!requester">
+            <p class="text-gray-500">Requester information not available</p>
+          </div>
+        </div>
+
+        <!-- Driver Info -->
+        <div class="participant-card">
+          <div class="participant-header">
+            <i class="pi pi-car text-green-600"></i>
+            <h3>Driver</h3>
+          </div>
+          <div class="participant-content" *ngIf="driver">
+            <p class="participant-name">{{ driver.firstName }} {{ driver.lastName }}</p>
+            <p class="participant-role">{{ driver.role }}</p>
+            <p class="participant-contact">
+              <i class="pi pi-envelope mr-1"></i>{{ driver.email }}
+            </p>
+            <p class="participant-contact">
+              <i class="pi pi-phone mr-1"></i>{{ driver.phone }}
+            </p>
+          </div>
+          <div class="participant-content" *ngIf="!driver">
+            <p class="text-gray-500">Driver information not available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visualizations Section -->
+    <div class="visualizations-section">
+      <div class="section-header">
+        <h2 class="text-xl font-semibold text-gray-800">
+          <i class="pi pi-chart-pie mr-2 text-indigo-600"></i>
+          Mission Analytics
+        </h2>
+      </div>
+      
+      <div class="charts-grid">
+        <!-- Cost Breakdown Chart -->
+        <div class="chart-card" *ngIf="costs.length > 0">
+          <div class="chart-header">
+            <h3 class="text-lg font-medium text-gray-700">Cost Breakdown</h3>
+            <span class="text-sm text-gray-500">Distribution by type</span>
+          </div>
+          <div class="chart-content">
+            <p-chart type="doughnut" [data]="costChartData" [options]="costChartOptions" 
+                     styleClass="w-full h-80"></p-chart>
+          </div>
+        </div>
+
+        <!-- Task Status Chart -->
+        <div class="chart-card" *ngIf="tasks.length > 0">
+          <div class="chart-header">
+            <h3 class="text-lg font-medium text-gray-700">Task Status</h3>
+            <span class="text-sm text-gray-500">Progress overview</span>
+          </div>
+          <div class="chart-content">
+            <p-chart type="pie" [data]="taskStatusChartData" [options]="taskStatusChartOptions" 
+                     styleClass="w-full h-80"></p-chart>
+          </div>
+        </div>
+
+        <!-- Timeline Chart -->
+        <div class="chart-card chart-card-wide" *ngIf="tasks.length > 0">
+          <div class="chart-header">
+            <h3 class="text-lg font-medium text-gray-700">Task Timeline</h3>
+            <span class="text-sm text-gray-500">Chronological progress</span>
+          </div>
+          <div class="chart-content">
+            <p-chart type="line" [data]="timelineChartData" [options]="timelineChartOptions" 
+                     styleClass="w-full h-80"></p-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div class="tasks-section">
+      <div class="section-header">
+        <h2 class="text-xl font-semibold text-gray-800">
+          <i class="pi pi-list mr-2 text-indigo-600"></i>
+          Tasks ({{ tasks.length }})
+        </h2>
+        <div class="task-progress">
+          <p class="text-sm text-gray-600 mb-1">Progress: {{ getTaskProgress() }}%</p>
+          <p-progressBar [value]="getTaskProgress()" [showValue]="false"></p-progressBar>
+        </div>
+      </div>
+
+      <div class="tasks-grid" *ngIf="tasks.length > 0">
+        <div class="task-card" *ngFor="let task of tasks; trackBy: trackByTaskId">
+          <div class="task-header">
+            <div class="task-status">
+              <p-tag [value]="getTaskStatusLabel(task.status)" 
+                     [severity]="task.status === TasksStatus.Completed ? 'success' : 
+                                 task.status === TasksStatus.InProgress ? 'warning' : 'info'">
+              </p-tag>
+              <span *ngIf="task.isFirstTask" class="first-task-badge">First Task</span>
+            </div>
+            <div class="task-site">
+              <i class="pi pi-map-marker text-gray-500"></i>
+              <span>{{ getSiteName(task.siteId) }}</span>
+            </div>
+          </div>
+          
+          <div class="task-content">
+            <p class="task-description">{{ task.description }}</p>
+            
+            <div class="task-dates">
+              <div class="date-item">
+                <label>Assignment:</label>
+                <span>{{ task.assignmentDate | date:'shortDate' }}</span>
+              </div>
+              <div class="date-item">
+                <label>Completion:</label>
+                <span>{{ task.completionDate | date:'shortDate' }}</span>
+              </div>
+            </div>
+            
+            <div class="task-address">
+              <p class="text-sm text-gray-600">{{ getSiteAddress(task.siteId) }}</p>
+            </div>
+
+            <!-- Task Articles -->
+            <div class="task-articles" *ngIf="getTaskArticles(task.taskId).length > 0">
+              <div class="articles-header">
+                <h4 class="text-sm font-medium text-gray-700">
+                  Articles ({{ getTaskArticleCount(task.taskId) }})
+                </h4>
+                <div class="articles-stats">
+                  <span class="stat-badge">{{ getTaskTotalWeight(task.taskId) | number:'1.1-1' }} kg</span>
+                  <span class="stat-badge">{{ getTaskTotalVolume(task.taskId) | number:'1.1-1' }} m³</span>
+                </div>
+              </div>
+              
+              <div class="articles-list">
+                <div class="article-item" *ngFor="let article of getTaskArticles(task.taskId); trackBy: trackByArticleId">
+                  <div class="article-info">
+                    <span class="article-name">{{ article.name }}</span>
+                    <span class="article-quantity">Qty: {{ article.quantity }}</span>
+                  </div>
+                  <div class="article-specs">
+                    <span class="spec">{{ article.weight }}kg</span>
+                    <span class="spec">{{ article.volume }}m³</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-tasks" *ngIf="tasks.length === 0">
+        <i class="pi pi-inbox text-gray-400 text-4xl mb-2"></i>
+        <p class="text-gray-500">No tasks assigned to this mission</p>
+      </div>
+    </div>
+
+    <!-- Costs Section -->
+    <div class="costs-section">
+      <div class="section-header">
+        <h2 class="text-xl font-semibold text-gray-800">
+          <i class="pi pi-dollar mr-2 text-indigo-600"></i>
+          Mission Costs
+        </h2>
+        <div class="total-cost">
+          <span class="text-sm text-gray-600">Total:</span>
+          <span class="text-2xl font-bold text-green-600">{{ getTotalCost() | currency }}</span>
+        </div>
+      </div>
+
+      <div class="costs-content">
+        <!-- Costs Table -->
+        <div class="costs-table" *ngIf="costs.length > 0">
+          <div class="table-header">
+            <h3 class="text-lg font-medium text-gray-700">Cost Details</h3>
+            <span class="text-sm text-gray-500">Average per task: {{ missionStats.averageCostPerTask | currency }}</span>
+          </div>
+          
+          <div class="table-container">
+            <p-table [value]="costs" 
+                     styleClass="p-datatable-sm" responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Receipts</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-cost>
+                <tr>
+                  <td>
+                    <p-tag [value]="getCostTypeLabel(cost.type)" 
+                           [severity]="cost.type === MissionCostType.Fuel ? 'success' : 
+                                       cost.type === MissionCostType.Toll ? 'warning' : 'info'">
+                    </p-tag>
+                  </td>
+                  <td class="font-semibold">{{ cost.amount | currency }}</td>
+                  <td>{{ cost.date | date:'shortDate' }}</td>
+                  <td>
+                    <button *ngIf="cost.receiptPhotoUrls && cost.receiptPhotoUrls.length > 0"
+                            pButton type="button" icon="pi pi-image" 
+                            class="p-button-text p-button-sm"
+                            (click)="openCostDialog(cost)"
+                            pTooltip="View receipt images">
+                      View ({{ cost.receiptPhotoUrls.length }})
+                    </button>
+                    <span *ngIf="!cost.receiptPhotoUrls || cost.receiptPhotoUrls.length === 0" 
+                          class="text-gray-400">No receipts</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div class="no-costs" *ngIf="costs.length === 0">
+          <i class="pi pi-dollar text-gray-400 text-4xl mb-2"></i>
+          <p class="text-gray-500">No costs recorded for this mission</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signature Area (Print Only) -->
+    <div class="signature-area print-only">
+      <div class="signature-section">
+        <div class="signature-line">
+          <span>Supervisor Signature: _________________________</span>
+          <span>Date: _________________</span>
+        </div>
+        <div class="signature-line">
+          <span>Driver Signature: _____________________________</span>
+          <span>Date: _________________</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost Receipt Dialog -->
+  <p-dialog header="Cost Receipts" [(visible)]="showCostDialog" 
+            [modal]="true" [style]="{width: '80vw', maxWidth: '800px'}"
+            (onHide)="closeCostDialog()">
+    <div class="receipt-gallery" *ngIf="selectedCost">
+      <div class="receipt-item" *ngFor="let photoUrl of selectedCost.receiptPhotoUrls; let i = index">
+        <img [src]="missionCostService.getImageUrl(photoUrl)" 
+             [alt]="'Receipt ' + (i + 1)"
+             class="receipt-image">
+        <p class="receipt-caption">Receipt {{ i + 1 }}</p>
+      </div>
+    </div>
+    <div *ngIf="!selectedCost?.receiptPhotoUrls || selectedCost?.receiptPhotoUrls?.length === 0" 
+         class="no-receipts">
+      <i class="pi pi-image text-gray-400 text-4xl mb-2"></i>
+      <p class="text-gray-500">No receipt images available</p>
+    </div>
+  </p-dialog>
+</div> 

@@ -1,0 +1,565 @@
+:host ::ng-deep {
+  .p-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    background: #ffffff;
+
+    .p-card-body {
+      padding: 0.5rem;
+
+      @media (min-width: 640px) {
+        padding: 1rem;
+      }
+    }
+  }
+
+  .p-inputtext,
+  .p-dropdown,
+  .p-calendar {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+
+    &.p-invalid {
+      border-color: #ef4444;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+    }
+
+    @media (max-width: 640px) {
+      font-size: 0.875rem;
+      padding: 0.4rem;
+    }
+  }
+
+  .p-dropdown,
+  .p-calendar {
+    .p-inputtext {
+      padding: 0.5rem;
+    }
+  }
+
+  .p-dialog {
+    .p-dialog-content {
+      padding: 1rem;
+    }
+
+    .p-dialog-header {
+      font-size: 1.25rem;
+      padding: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .p-dialog-content {
+        padding: 0.75rem;
+      }
+
+      .p-dialog-header {
+        font-size: 1rem;
+        padding: 0.75rem;
+      }
+    }
+  }
+
+  .p-toast {
+    &.p-toast-sm {
+      max-width: 90vw;
+      font-size: 0.9rem;
+
+      @media (max-width: 640px) {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  .p-confirm-dialog {
+    &.p-confirm-dialog-sm {
+      width: 90vw;
+      max-width: 500px;
+
+      .p-dialog-content {
+        padding: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .p-dialog-header {
+        font-size: 1.1rem;
+      }
+
+      @media (max-width: 640px) {
+        .p-dialog-content {
+          padding: 0.75rem;
+          font-size: 0.8rem;
+        }
+
+        .p-dialog-header {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .p-paginator {
+    &.p-paginator-sm {
+      .p-paginator-page,
+      .p-paginator-next,
+      .p-paginator-prev,
+      .p-paginator-first,
+      .p-paginator-last {
+        min-width: 2rem;
+        height: 2rem;
+        line-height: 2rem;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 640px) {
+        .p-paginator-page,
+        .p-paginator-next,
+        .p-paginator-prev,
+        .p-paginator-first,
+        .p-paginator-last {
+          min-width: 1.5rem;
+          height: 1.5rem;
+          line-height: 1.5rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+
+  .p-button {
+    &.p-button-sm {
+    padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+
+      @media (max-width: 640px) {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  // Native date input styling
+  .native-date-input {
+    position: relative;
+    background-image: linear-gradient(45deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+    color: #374151;
+    font-weight: 500;
+    
+    &::-webkit-calendar-picker-indicator {
+      background: linear-gradient(45deg, #6366f1, #a855f7);
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      filter: brightness(1.1);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        filter: brightness(1.2);
+        transform: scale(1.05);
+      }
+    }
+    
+    &::-webkit-datetime-edit {
+      color: #374151;
+      font-weight: 500;
+    }
+    
+    &::-webkit-datetime-edit-fields-wrapper {
+      padding: 0;
+    }
+    
+    &::-webkit-datetime-edit-text {
+      color: #6b7280;
+      padding: 0 4px;
+    }
+    
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-year-field,
+    &::-webkit-datetime-edit-hour-field,
+    &::-webkit-datetime-edit-minute-field,
+    &::-webkit-datetime-edit-ampm-field {
+      background: rgba(99, 102, 241, 0.05);
+      border-radius: 3px;
+      padding: 2px 4px;
+      margin: 0 1px;
+      font-weight: 600;
+      color: #374151;
+      transition: all 0.2s ease;
+      
+      &:focus {
+        background: rgba(99, 102, 241, 0.15);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+      }
+    }
+  }
+
+  // Table styling
+  .p-datatable {
+    &.p-datatable-striped {
+      .p-datatable-tbody > tr:nth-child(even) {
+        background-color: #f9fafb;
+      }
+    }
+
+    &.p-datatable-sm {
+        .p-datatable-thead > tr > th {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        }
+
+        .p-datatable-tbody > tr > td {
+            padding: 0.75rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    .p-datatable-thead > tr > th {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: none;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+    }
+
+    .p-datatable-tbody > tr {
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f3f4f6;
+
+      &:hover {
+        background-color: #f9fafb;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  // Tag styling
+  .p-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+  }
+
+  // Dropdown styling
+  .p-dropdown {
+    .p-dropdown-trigger {
+      color: #6b7280;
+    }
+
+    .p-dropdown-items {
+      .p-dropdown-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #f3f4f6;
+        }
+
+        &.p-highlight {
+          background-color: #6366f1;
+          color: white;
+        }
+      }
+    }
+  }
+
+  // Checkbox styling
+  .p-checkbox {
+    .p-checkbox-box {
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid #d1d5db;
+      border-radius: 0.25rem;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #6366f1;
+      }
+
+      &.p-highlight {
+        background-color: #6366f1;
+        border-color: #6366f1;
+      }
+    }
+
+    .p-checkbox-icon {
+      font-size: 0.75rem;
+      color: white;
+    }
+  }
+}
+
+// Animation for filter collapse
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.filter-collapse-enter {
+  animation: slideDown 0.3s ease-out;
+}
+
+.filter-collapse-leave {
+  animation: slideUp 0.3s ease-in;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #94a3b8;
+  }
+}
+
+// Responsive utilities
+@media (max-width: 640px) {
+  .mobile-hidden {
+    display: none;
+  }
+
+  .mobile-full {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tablet-hidden {
+    display: none;
+  }
+}
+
+// Focus styles for accessibility
+*:focus {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+// Loading states
+.loading-overlay {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+}
+
+// Custom button styles
+.btn-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Card hover effects
+.card-hover {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Status indicator styles
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.status-requested {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+
+  &.status-approved {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  &.status-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+} 
+
+.filter-input {
+  min-height: 36px;
+  height: 36px;
+  border-radius: 0.75rem !important;
+  border: 1.5px solid #e5e7eb !important;
+  font-size: 1rem !important;
+  padding: 0 0.75rem !important;
+  background: #f8fafc !important;
+  box-shadow: 0 1px 4px 0 rgba(80, 80, 120, 0.04) !important;
+  transition: border 0.2s, box-shadow 0.2s;
+  color: #222 !important;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0 !important;
+}
+
+.filter-input:focus, .filter-input:active, .filter-input:focus-visible {
+  border-color: #a855f7 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px #a855f733 !important;
+  background: #f3e8ff !important;
+}
+
+// PrimeNG dropdown override
+:host ::ng-deep .p-dropdown.filter-input, :host ::ng-deep .p-dropdown .filter-input {
+  min-height: 36px;
+  height: 36px;
+  border-radius: 0.75rem !important;
+  border: 1.5px solid #e5e7eb !important;
+  font-size: 1rem !important;
+  padding: 0 0.75rem !important;
+  background: #f8fafc !important;
+  box-shadow: 0 1px 4px 0 rgba(80, 80, 120, 0.04) !important;
+  color: #222 !important;
+  display: flex;
+  align-items: center;
+}
+
+:host ::ng-deep .p-dropdown.filter-input .p-dropdown-label {
+  line-height: 36px !important;
+  min-height: 36px !important;
+  font-size: 1rem !important;
+  padding: 0 !important;
+  color: #222 !important;
+}
+
+:host ::ng-deep .p-dropdown.filter-input .p-dropdown-trigger {
+  min-height: 36px !important;
+  height: 36px !important;
+  display: flex;
+  align-items: center;
+}
+
+:host ::ng-deep .p-dropdown-panel {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.10) !important;
+  background: #fff !important;
+  padding: 0.5rem 0 !important;
+}
+:host ::ng-deep .p-dropdown-item {
+  font-size: 1rem !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  margin: 0 0.15rem;
+  transition: background 0.15s;
+}
+:host ::ng-deep .p-dropdown-item.p-highlight, :host ::ng-deep .p-dropdown-item:hover {
+  background: #f3e8ff !important;
+  color: #7c3aed !important;
+}
+
+// PrimeNG input override
+:host ::ng-deep .p-inputtext.filter-input {
+  min-height: 36px;
+  height: 36px;
+  border-radius: 0.75rem !important;
+  border: 1.5px solid #e5e7eb !important;
+  font-size: 1rem !important;
+  padding: 0 0.75rem !important;
+  background: #f8fafc !important;
+  box-shadow: 0 1px 4px 0 rgba(80, 80, 120, 0.04) !important;
+  color: #222 !important;
+  display: flex;
+  align-items: center;
+}
+
+// Native date input
+.filter-input[type="datetime-local"] {
+  min-height: 36px;
+  height: 36px;
+  border-radius: 0.75rem !important;
+  border: 1.5px solid #e5e7eb !important;
+  font-size: 1rem !important;
+  padding: 0 0.75rem !important;
+  background: #f8fafc !important;
+  box-shadow: 0 1px 4px 0 rgba(80, 80, 120, 0.04) !important;
+  color: #222 !important;
+  display: flex;
+  align-items: center;
+} 
+
+// Add margin between filter rows
+.grid.mb-4 {
+  margin-bottom: 1.5rem !important;
+} 

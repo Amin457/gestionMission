@@ -1,0 +1,505 @@
+<div class="modern-dashboard">
+  <!-- Toast Messages -->
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-grid">
+      <div class="loading-card" *ngFor="let item of [1,2,3,4,5,6,7,8]">
+        <p-skeleton height="100px" borderRadius="12px"></p-skeleton>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading" class="dashboard-wrapper">
+    
+    <!-- Top Header -->
+    <header class="dashboard-header">
+      <div class="header-content">
+        <div class="welcome-section">
+          <div class="welcome-avatar">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="welcome-text">
+            <h1>Welcome back, {{ authService.getCurrentUser()?.firstName }}!</h1>
+            <p>Here's your mission management overview for today</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <p-button 
+            icon="pi pi-refresh" 
+            label="Refresh" 
+            severity="secondary" 
+            (onClick)="refreshData()"
+            [loading]="isLoadingStats"
+            class="refresh-btn">
+          </p-button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Left Column - Stats & Charts -->
+      <div class="left-column">
+        
+        <!-- Key Metrics Cards -->
+        <section class="metrics-section">
+          <div class="section-header">
+            <h2>Key Metrics</h2>
+            <p>Real-time performance indicators</p>
+          </div>
+          
+          <div class="metrics-grid">
+            <!-- Total Missions -->
+            <div class="metric-card primary">
+              <div class="metric-icon">
+                <i class="pi pi-send"></i>
+              </div>
+              <div class="metric-content">
+                <div class="metric-value">{{ stats.totalMissions }}</div>
+                <div class="metric-label">Total Missions</div>
+                <div class="metric-trend positive">
+                  <i class="pi pi-arrow-up"></i>
+                  <span>{{ stats.activeMissions }} active</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Missions -->
+            <div class="metric-card success">
+              <div class="metric-icon">
+                <i class="pi pi-clock"></i>
+              </div>
+              <div class="metric-content">
+                <div class="metric-value">{{ stats.activeMissions }}</div>
+                <div class="metric-label">Active Missions</div>
+                <div class="metric-trend">
+                  <i class="pi pi-percentage"></i>
+                  <span>{{ getMissionCompletionRate() }}% completion</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Available Vehicles -->
+            <div class="metric-card info">
+              <div class="metric-icon">
+                <i class="pi pi-car"></i>
+              </div>
+              <div class="metric-content">
+                <div class="metric-value">{{ stats.availableVehicles }}</div>
+                <div class="metric-label">Available Vehicles</div>
+                <div class="metric-trend">
+                  <i class="pi pi-percentage"></i>
+                  <span>{{ getVehicleInUseRate() }}% in use</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Drivers -->
+            <div class="metric-card warning">
+              <div class="metric-icon">
+                <i class="pi pi-users"></i>
+              </div>
+              <div class="metric-content">
+                <div class="metric-value">{{ stats.activeDrivers }}</div>
+                <div class="metric-label">Active Drivers</div>
+                <div class="metric-trend">
+                  <i class="pi pi-percentage"></i>
+                  <span>{{ getDriverWorkingRate() }}% working</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+          <div class="section-header">
+            <h2>Analytics Overview</h2>
+            <p>Data insights and trends</p>
+          </div>
+          
+          <div class="charts-grid">
+            <!-- Mission Status Chart -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Mission Status</h3>
+                <i class="pi pi-chart-pie"></i>
+              </div>
+              <p-chart 
+                type="doughnut" 
+                [data]="missionStatusChart" 
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true
+                      }
+                    }
+                  }
+                }">
+              </p-chart>
+            </div>
+
+            <!-- Mission Type Chart -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Mission Types</h3>
+                <i class="pi pi-chart-bar"></i>
+              </div>
+              <p-chart 
+                type="pie" 
+                [data]="missionTypeChart" 
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true
+                      }
+                    }
+                  }
+                }">
+              </p-chart>
+            </div>
+
+            <!-- Vehicle Availability -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Vehicle Status</h3>
+                <i class="pi pi-car"></i>
+              </div>
+              <p-chart 
+                type="doughnut" 
+                [data]="vehicleAvailabilityChart" 
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true
+                      }
+                    }
+                  }
+                }">
+              </p-chart>
+            </div>
+
+            <!-- Driver Status -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Driver Status</h3>
+                <i class="pi pi-users"></i>
+              </div>
+              <p-chart 
+                type="pie" 
+                [data]="driverStatusChart" 
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true
+                      }
+                    }
+                  }
+                }">
+              </p-chart>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column - Filters & Data -->
+      <div class="right-column">
+        
+        <!-- Filters Card -->
+        <!-- <section class="filters-section">
+          <div class="section-header">
+            <h2>Filters</h2>
+            <p>Customize your view</p>
+          </div>
+          
+          <div class="filters-card">
+            <form [formGroup]="filterForm" class="filters-form">
+              
+              <div class="filter-row">
+                <div class="filter-group">
+                  <label for="status">Mission Status</label>
+                  <p-multiSelect 
+                    id="status"
+                    formControlName="status"
+                    [options]="statusOptions"
+                    placeholder="Select statuses"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    class="filter-input">
+                  </p-multiSelect>
+                </div>
+
+                <div class="filter-group">
+                  <label for="type">Mission Type</label>
+                  <p-multiSelect 
+                    id="type"
+                    formControlName="type"
+                    [options]="typeOptions"
+                    placeholder="Select types"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    class="filter-input">
+                  </p-multiSelect>
+                </div>
+              </div>
+
+              <div class="filter-row">
+                <div class="filter-group">
+                  <label for="driver">Driver</label>
+                  <p-dropdown 
+                    id="driver"
+                    formControlName="driverId"
+                    [options]="driverOptions"
+                    placeholder="Select driver"
+                    optionLabel="label"
+                    optionValue="value"
+                    [showClear]="true"
+                    class="filter-input">
+                  </p-dropdown>
+                </div>
+
+                <div class="filter-group">
+                  <label for="dateRange">Date Range</label>
+                  <p-calendar 
+                    id="dateRange"
+                    formControlName="dateRange"
+                    selectionMode="range"
+                    placeholder="Select date range"
+                    [showIcon]="true"
+                    dateFormat="dd/mm/yy"
+                    class="filter-input">
+                  </p-calendar>
+                </div>
+              </div>
+
+              <div class="filter-row">
+                <div class="filter-group full-width">
+                  <label for="requester">Requester</label>
+                  <input 
+                    id="requester"
+                    type="text" 
+                    pInputText 
+                    formControlName="requester"
+                    placeholder="Search by requester name"
+                    class="filter-input">
+                </div>
+              </div>
+
+              <div class="filter-actions">
+                <p-button 
+                  label="Clear All" 
+                  severity="secondary" 
+                  (onClick)="clearFilters()"
+                  icon="pi pi-times"
+                  class="clear-btn">
+                </p-button>
+              </div>
+            </form>
+          </div>
+        </section> -->
+
+        <!-- Real-time Statistics -->
+        <section class="realtime-section" *ngIf="realTimeStats && realTimeStats.missions">
+          <div class="section-header">
+            <h2>Real-time Status</h2>
+            <div class="last-updated">
+              <i class="pi pi-clock"></i>
+              <span>Updated: {{ realTimeStats.timestamp | date:'shortTime' }}</span>
+            </div>
+          </div>
+          
+          <div class="realtime-card">
+            <div class="realtime-grid">
+              <div class="realtime-item">
+                <div class="realtime-icon active">
+                  <i class="pi pi-send"></i>
+                </div>
+                <div class="realtime-content">
+                  <div class="realtime-value">{{ realTimeStats.missions?.active || 0 }}</div>
+                  <div class="realtime-label">Active Missions</div>
+                </div>
+              </div>
+
+              <div class="realtime-item">
+                <div class="realtime-icon completed">
+                  <i class="pi pi-check-circle"></i>
+                </div>
+                <div class="realtime-content">
+                  <div class="realtime-value">{{ realTimeStats.missions?.completedToday || 0 }}</div>
+                  <div class="realtime-label">Completed Today</div>
+                </div>
+              </div>
+
+              <div class="realtime-item">
+                <div class="realtime-icon pending">
+                  <i class="pi pi-clock"></i>
+                </div>
+                <div class="realtime-content">
+                  <div class="realtime-value">{{ realTimeStats.missions?.pending || 0 }}</div>
+                  <div class="realtime-label">Pending</div>
+                </div>
+              </div>
+
+              <div class="realtime-item">
+                <div class="realtime-icon available">
+                  <i class="pi pi-car"></i>
+                </div>
+                <div class="realtime-content">
+                  <div class="realtime-value">{{ realTimeStats.vehicles?.available || 0 }}</div>
+                  <div class="realtime-label">Available Vehicles</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alerts -->
+            <div class="alerts-section" *ngIf="realTimeStats.alerts && realTimeStats.alerts.length > 0">
+              <h4>Recent Alerts</h4>
+              <div class="alerts-list">
+                <div class="alert-item" *ngFor="let alert of realTimeStats.alerts">
+                  <div class="alert-icon" [ngClass]="alert.type.toLowerCase()">
+                    <i class="pi" [ngClass]="{
+                      'pi-exclamation-triangle': alert.type === 'Warning',
+                      'pi-times-circle': alert.type === 'Error',
+                      'pi-info-circle': alert.type === 'Info'
+                    }"></i>
+                  </div>
+                  <div class="alert-content">
+                    <div class="alert-message">{{ alert.message }}</div>
+                    <div class="alert-time">{{ alert.timestamp | date:'shortTime' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="activity-section" *ngIf="recentActivity && recentActivity.activities && recentActivity.activities.length > 0">
+          <div class="section-header">
+            <h2>Recent Activity</h2>
+            <div class="activity-summary" *ngIf="recentActivity?.summary">
+              <span class="summary-item">
+                <i class="pi pi-plus"></i>
+                {{ recentActivity.summary?.newMissions || 0 }} new
+              </span>
+              <span class="summary-item">
+                <i class="pi pi-check"></i>
+                {{ recentActivity.summary?.completedMissions || 0 }} completed
+              </span>
+              <span class="summary-item">
+                <i class="pi pi-sync"></i>
+                {{ recentActivity.summary?.statusChanges || 0 }} changes
+              </span>
+            </div>
+          </div>
+          
+          <div class="activity-card">
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let activity of recentActivity.activities">
+                <div class="activity-icon" [ngClass]="getActivityTypeClass(activity.type)">
+                  <i class="pi" [ngClass]="getActivityIcon(activity.type)"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-title">{{ activity.title }}</div>
+                  <div class="activity-description">{{ activity.description }}</div>
+                  <div class="activity-meta">
+                    <span class="activity-user">{{ activity.userName }}</span>
+                    <span class="activity-time">{{ activity.timestamp | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="actions-section">
+          <div class="section-header">
+            <h2>Quick Actions</h2>
+            <p>Common tasks and shortcuts</p>
+          </div>
+          
+          <div class="actions-grid">
+            <div class="action-card" (click)="navigateToMissions()">
+              <div class="action-icon">
+                <i class="pi pi-plus"></i>
+              </div>
+              <div class="action-content">
+                <h3>New Mission</h3>
+                <p>Create a new mission</p>
+              </div>
+              <div class="action-arrow">
+                <i class="pi pi-arrow-right"></i>
+              </div>
+            </div>
+
+            <div class="action-card" (click)="navigateToVehicles()">
+              <div class="action-icon">
+                <i class="pi pi-car"></i>
+              </div>
+              <div class="action-content">
+                <h3>Manage Vehicles</h3>
+                <p>View vehicle fleet</p>
+              </div>
+              <div class="action-arrow">
+                <i class="pi pi-arrow-right"></i>
+              </div>
+            </div>
+
+            <div class="action-card" (click)="navigateToUsers()">
+              <div class="action-icon">
+                <i class="pi pi-users"></i>
+              </div>
+              <div class="action-content">
+                <h3>Manage Users</h3>
+                <p>User administration</p>
+              </div>
+              <div class="action-arrow">
+                <i class="pi pi-arrow-right"></i>
+              </div>
+            </div>
+
+            <div class="action-card" (click)="refreshData()">
+              <div class="action-icon">
+                <i class="pi pi-refresh"></i>
+              </div>
+              <div class="action-content">
+                <h3>Refresh Data</h3>
+                <p>Update dashboard</p>
+              </div>
+              <div class="action-arrow">
+                <i class="pi pi-arrow-right"></i>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

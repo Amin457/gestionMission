@@ -1,0 +1,604 @@
+<div class="min-h-screen bg-gray-50 p-4 lg:p-6">
+  <!-- Header Section -->
+  <div class="w-full max-w-none lg:max-w-8xl lg:mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Articles Management</h1>
+          <p class="text-gray-600 mt-1">Manage your inventory with advanced filtering and image support</p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <!-- View Mode Toggle -->
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <button 
+              (click)="viewMode = 'grid'" 
+              [class]="viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200">
+              <i class="pi pi-th-large mr-2"></i>Grid
+            </button>
+            <button 
+              (click)="viewMode = 'table'" 
+              [class]="viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200">
+              <i class="pi pi-table mr-2"></i>Table
+            </button>
+          </div>
+
+          <!-- Filter Toggle -->
+          <button 
+            (click)="showFilters = !showFilters"
+            [class]="showFilters ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+            <i class="pi pi-filter"></i>
+            Filters
+            <span *ngIf="filterCount > 0" class="bg-white text-blue-600 text-xs px-2 py-1 rounded-full font-bold">
+              {{ filterCount }}
+            </span>
+          </button>
+
+          <!-- Add Article Button -->
+          <button 
+            (click)="showAddEditDialog()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2">
+            <i class="pi pi-plus"></i>
+            Add Article
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div *ngIf="showFilters" class="mt-6 pt-6 border-t border-gray-200">
+        <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Name Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Article Name</label>
+            <input 
+              pInputText 
+              type="text" 
+              formControlName="name"
+              placeholder="Search by name..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Description Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <input 
+              pInputText 
+              type="text" 
+              formControlName="description"
+              placeholder="Search in description..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Min Quantity Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Min Quantity</label>
+            <input 
+              pInputText 
+              type="number" 
+              formControlName="minQuantity"
+              placeholder="Min quantity..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Max Quantity Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Max Quantity</label>
+            <input 
+              pInputText 
+              type="number" 
+              formControlName="maxQuantity"
+              placeholder="Max quantity..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Min Weight Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Min Weight (kg)</label>
+            <input 
+              pInputText 
+              type="number" 
+              step="0.1"
+              formControlName="minWeight"
+              placeholder="Min weight..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Max Weight Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Max Weight (kg)</label>
+            <input 
+              pInputText 
+              type="number" 
+              step="0.1"
+              formControlName="maxWeight"
+              placeholder="Max weight..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Min Volume Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Min Volume (m³)</label>
+            <input 
+              pInputText 
+              type="number" 
+              step="0.001"
+              formControlName="minVolume"
+              placeholder="Min volume..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Max Volume Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Max Volume (m³)</label>
+            <input 
+              pInputText 
+              type="number" 
+              step="0.001"
+              formControlName="maxVolume"
+              placeholder="Max volume..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Filter Actions -->
+          <div class="sm:col-span-2 lg:col-span-3 xl:col-span-4 flex items-center gap-3 pt-2">
+            <button 
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+              Apply Filters
+            </button>
+            <button 
+              type="button"
+              (click)="clearFilters()"
+              class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+              Clear All
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex items-center justify-center py-12">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-spin pi-spinner text-2xl text-blue-600"></i>
+          <span class="text-gray-600">Loading articles...</span>
+        </div>
+      </div>
+
+      <!-- Grid View -->
+      <div *ngIf="!loading && viewMode === 'grid'" class="p-6">
+        <div *ngIf="articles.length === 0" class="text-center py-12">
+          <i class="pi pi-box text-4xl text-gray-300 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No articles found</h3>
+          <p class="text-gray-600">Get started by adding your first article.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-4 lg:gap-6">
+          <div *ngFor="let article of articles" class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200">
+            <!-- Article Image -->
+            <div class="relative h-48 bg-gray-100">
+              <img 
+                *ngIf="article.photoUrls && article.photoUrls.length > 0"
+                [src]="getImageUrl(article.photoUrls[0])"
+                [alt]="article.name"
+                class="w-full h-full object-cover cursor-pointer"
+                (click)="showImageGallery(article, 0)">
+              
+              <div *ngIf="!article.photoUrls || article.photoUrls.length === 0" 
+                   class="w-full h-full flex items-center justify-center">
+                <i class="pi pi-box text-4xl text-gray-400"></i>
+              </div>
+
+              <!-- Image Count Badge -->
+              <div *ngIf="article.photoUrls && article.photoUrls.length > 1" 
+                   class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full font-bold">
+                +{{ article.photoUrls.length - 1 }}
+              </div>
+
+              <!-- Quantity Badge -->
+              <div class="absolute top-2 left-2">
+                <span [class]="getQuantityBadgeClass(article.quantity) + ' text-xs px-2 py-1 rounded-full border'">
+                  {{ getQuantityStatus(article.quantity) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Article Info -->
+            <div class="p-4">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ article.name }}</h3>
+                  <p class="text-sm text-gray-600 line-clamp-2">{{ article.description }}</p>
+                </div>
+              </div>
+
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-2">
+                    <i class="pi pi-calculator text-gray-400"></i>
+                    <span>Quantity: {{ article.quantity }}</span>
+                  </span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-2">
+                    <i class="pi pi-weight-hanging text-gray-400"></i>
+                    <span>Weight: {{ article.weight }} kg</span>
+                  </span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-2">
+                    <i class="pi pi-cube text-gray-400"></i>
+                    <span>Volume: {{ article.volume }} m³</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                <button 
+                  (click)="showAddEditDialog(article)"
+                  class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                  <i class="pi pi-pencil mr-1"></i>Edit
+                </button>
+                <button 
+                  (click)="confirmDelete(article)"
+                  class="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                  <i class="pi pi-trash mr-1"></i>Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table View -->
+      <div *ngIf="!loading && viewMode === 'table'">
+        <p-table 
+          [value]="articles" 
+          [paginator]="false" 
+          [rows]="10" 
+          [scrollable]="true" 
+          scrollHeight="600px"
+          [loading]="loading" 
+          sortMode="multiple" 
+          styleClass="p-datatable-striped p-datatable-sm" 
+          responsiveLayout="scroll"
+          (onSort)="onSort($event)">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 80px">Image</th>
+              <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+              <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+              <th pSortableColumn="quantity">Quantity <p-sortIcon field="quantity"></p-sortIcon></th>
+              <th pSortableColumn="weight">Weight <p-sortIcon field="weight"></p-sortIcon></th>
+              <th pSortableColumn="volume">Volume <p-sortIcon field="volume"></p-sortIcon></th>
+              <th style="width: 120px">Actions</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-article>
+            <tr>
+              <td>
+                <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 cursor-pointer" 
+                     (click)="showImageGallery(article, 0)">
+                  <img 
+                    *ngIf="article.photoUrls && article.photoUrls.length > 0"
+                    [src]="getImageUrl(article.photoUrls[0])"
+                    [alt]="article.name"
+                    class="w-full h-full object-cover">
+                  <div *ngIf="!article.photoUrls || article.photoUrls.length === 0" 
+                       class="w-full h-full flex items-center justify-center">
+                    <i class="pi pi-box text-gray-400"></i>
+                  </div>
+                </div>
+              </td>
+              <td class="font-medium">{{ article.name }}</td>
+              <td class="max-w-xs truncate">{{ article.description }}</td>
+              <td>
+                <span [class]="getQuantityBadgeClass(article.quantity) + ' text-xs px-2 py-1 rounded-full border'">
+                  {{ article.quantity }}
+                </span>
+              </td>
+              <td>{{ article.weight }} kg</td>
+              <td>{{ article.volume }} m³</td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <button 
+                    pButton 
+                    icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-sm p-button-info"
+                    (click)="showAddEditDialog(article)">
+                  </button>
+                  <button 
+                    pButton 
+                    icon="pi pi-trash" 
+                    class="p-button-rounded p-button-sm p-button-danger"
+                    (click)="confirmDelete(article)">
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7" class="text-center py-12">
+                <i class="pi pi-box text-4xl text-gray-300 mb-4 block"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No articles found</h3>
+                <p class="text-gray-600">Get started by adding your first article.</p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!loading && articles.length > 0" class="p-4 border-t border-gray-200">
+        <p-paginator 
+          [rows]="pageSize" 
+          [totalRecords]="totalRecords" 
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          (onPageChange)="onPageChange($event)">
+        </p-paginator>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Article Dialog -->
+<p-dialog 
+  [(visible)]="displayDialog" 
+  [modal]="true" 
+  [closable]="true" 
+  [style]="{ width: '600px' }" 
+  [draggable]="false"
+  header="{{ isEditing ? 'Edit Article' : 'Add Article' }}"
+  styleClass="p-dialog-lg">
+  
+  <form [formGroup]="articleForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Article Name -->
+    <div>
+      <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Article Name *</label>
+      <input 
+        pInputText 
+        id="name" 
+        type="text" 
+        formControlName="name" 
+        autofocus
+        placeholder="Enter article name..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="articleForm.get('name')?.invalid && articleForm.get('name')?.touched" />
+      <small class="p-error text-sm" *ngIf="getFieldError('name')">
+        {{ getFieldError('name') }}
+      </small>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+      <textarea 
+        pInputTextarea 
+        id="description" 
+        formControlName="description"
+        rows="3"
+        placeholder="Enter article description..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
+      </textarea>
+      <small class="p-error text-sm" *ngIf="getFieldError('description')">
+        {{ getFieldError('description') }}
+      </small>
+    </div>
+
+    <!-- Quantity -->
+    <div>
+      <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+      <input 
+        pInputText 
+        id="quantity" 
+        type="number" 
+        formControlName="quantity"
+        placeholder="Enter quantity..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="articleForm.get('quantity')?.invalid && articleForm.get('quantity')?.touched" />
+      <small class="p-error text-sm" *ngIf="getFieldError('quantity')">
+        {{ getFieldError('quantity') }}
+      </small>
+    </div>
+
+    <!-- Weight -->
+    <div>
+      <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">Weight (kg) *</label>
+      <input 
+        pInputText 
+        id="weight" 
+        type="number" 
+        step="0.1"
+        formControlName="weight"
+        placeholder="Enter weight in kg..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="articleForm.get('weight')?.invalid && articleForm.get('weight')?.touched" />
+      <small class="p-error text-sm" *ngIf="getFieldError('weight')">
+        {{ getFieldError('weight') }}
+      </small>
+    </div>
+
+    <!-- Volume -->
+    <div>
+      <label for="volume" class="block text-sm font-medium text-gray-700 mb-2">Volume (m³) *</label>
+      <input 
+        pInputText 
+        id="volume" 
+        type="number" 
+        step="0.001"
+        formControlName="volume"
+        placeholder="Enter volume in m³..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [class.p-invalid]="articleForm.get('volume')?.invalid && articleForm.get('volume')?.touched" />
+      <small class="p-error text-sm" *ngIf="getFieldError('volume')">
+        {{ getFieldError('volume') }}
+      </small>
+    </div>
+
+    <!-- Photo Upload Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Article Photos</label>
+      
+      <!-- Existing Photos (Edit Mode) -->
+      <div *ngIf="isEditing && existingPhotos.length > 0" class="mb-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">Existing Photos</h4>
+        <div class="grid grid-cols-3 gap-3">
+          <div *ngFor="let photo of existingPhotos; let i = index" class="relative">
+            <img [src]="getImageUrl(photo)" [alt]="'Photo ' + (i + 1)" 
+                 class="w-full h-24 object-cover rounded-lg border-2"
+                 [class.border-blue-500]="photosToKeep.includes(photo)"
+                 [class.border-gray-200]="!photosToKeep.includes(photo)">
+            
+            <div class="absolute top-1 right-1 flex gap-1">
+              <button 
+                *ngIf="!photosToKeep.includes(photo)"
+                type="button"
+                (click)="addExistingPhoto(photo)"
+                class="bg-green-500 text-white p-1 rounded-full text-xs hover:bg-green-600">
+                <i class="pi pi-plus"></i>
+              </button>
+              <button 
+                *ngIf="photosToKeep.includes(photo)"
+                type="button"
+                (click)="removeExistingPhoto(photo)"
+                class="bg-red-500 text-white p-1 rounded-full text-xs hover:bg-red-600">
+                <i class="pi pi-minus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Photo Upload -->
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <p-fileUpload 
+          #fileUpload
+          [multiple]="true" 
+          accept="image/*" 
+          [maxFileSize]="5242880"
+          [customUpload]="true"
+          (onSelect)="onFileSelect($event)"
+          chooseLabel="Choose Photos"
+          cancelLabel="Cancel"
+          styleClass="w-full">
+        </p-fileUpload>
+        <p class="text-xs text-gray-500 mt-2">Maximum 10 photos, 5MB each. Supported formats: JPG, PNG, GIF, WebP</p>
+      </div>
+
+      <!-- Selected Photos Preview -->
+      <div *ngIf="selectedPhotos.length > 0" class="mt-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Photos ({{ selectedPhotos.length }})</h4>
+        <div class="grid grid-cols-3 gap-3">
+          <div *ngFor="let photo of selectedPhotos; let i = index" class="relative">
+            <img [src]="getPhotoPreviewUrl(photo)" [alt]="'Selected photo ' + (i + 1)" 
+                 class="w-full h-24 object-cover rounded-lg">
+            <button 
+              type="button"
+              (click)="removeSelectedPhoto(i)"
+              class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full text-xs hover:bg-red-600">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Photos Count -->
+      <div *ngIf="totalPhotos > 0" class="mt-2 text-sm text-gray-600">
+        Total photos: {{ totalPhotos }} / 10
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-times" 
+        label="Cancel"
+        class="p-button-outlined p-button-secondary"
+        (click)="displayDialog = false">
+      </button>
+      <button 
+        pButton 
+        type="submit" 
+        icon="pi pi-check" 
+        [label]="isEditing ? 'Update Article' : 'Create Article'"
+        class="p-button-primary"
+        [disabled]="loading || articleForm.invalid">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Image Gallery Dialog -->
+<p-dialog 
+  [(visible)]="displayImageDialog" 
+  [modal]="true" 
+  [closable]="true" 
+  [style]="{ width: '800px' }" 
+  [draggable]="false"
+  header="Article Photos"
+  styleClass="p-dialog-lg">
+  
+  <div *ngIf="selectedArticle && selectedArticle.photoUrls && selectedArticle.photoUrls.length > 0" class="space-y-4">
+    <!-- Main Image -->
+    <div class="relative">
+      <img [src]="getImageUrl(selectedArticle.photoUrls[selectedImageIndex])" 
+           [alt]="'Photo ' + (selectedImageIndex + 1)"
+           class="w-full h-96 object-cover rounded-lg">
+      
+      <!-- Navigation Buttons -->
+      <button 
+        *ngIf="selectedArticle.photoUrls.length > 1"
+        (click)="previousImage()"
+        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all duration-200">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+      
+      <button 
+        *ngIf="selectedArticle.photoUrls.length > 1"
+        (click)="nextImage()"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all duration-200">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+
+      <!-- Image Counter -->
+      <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+        {{ selectedImageIndex + 1 }} / {{ selectedArticle.photoUrls.length }}
+      </div>
+    </div>
+
+    <!-- Thumbnail Navigation -->
+    <div *ngIf="selectedArticle.photoUrls.length > 1" class="flex gap-2 overflow-x-auto">
+      <img *ngFor="let photo of selectedArticle.photoUrls; let i = index"
+           [src]="getImageUrl(photo)"
+           [alt]="'Thumbnail ' + (i + 1)"
+           [class]="i === selectedImageIndex ? 'border-2 border-blue-500' : 'border-2 border-gray-200'"
+           class="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-all duration-200"
+           (click)="selectedImageIndex = i">
+    </div>
+  </div>
+
+  <div *ngIf="!selectedArticle || !selectedArticle.photoUrls || selectedArticle.photoUrls.length === 0" 
+       class="text-center py-12">
+    <i class="pi pi-image text-4xl text-gray-300 mb-4"></i>
+    <p class="text-gray-600">No photos available for this article.</p>
+  </div>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>

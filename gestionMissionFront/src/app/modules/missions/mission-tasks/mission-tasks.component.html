@@ -1,0 +1,826 @@
+<div class="mission-tasks-container">
+  <p-toast position="top-right" styleClass="p-toast-sm"></p-toast>
+  <p-confirmDialog
+    acceptLabel="Yes"
+    rejectLabel="No"
+    acceptIcon="pi pi-check"
+    rejectIcon="pi pi-times"
+    acceptButtonStyleClass="p-button-danger"
+    rejectButtonStyleClass="p-button-outlined"
+  ></p-confirmDialog>
+
+  <!-- Enhanced Header with Progress -->
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+      <div class="flex-1">
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          Mission Tasks
+        </h2>
+        <p class="text-gray-600 text-sm">
+          Manage and track task progress
+        </p>
+      </div>
+      
+      <div class="flex flex-wrap gap-3">
+        <!-- View Mode Toggle -->
+        <div class="flex bg-gray-100 rounded-lg p-1">
+          <button
+            [class]="viewMode === 'list' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'"
+            class="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
+            (click)="viewMode = 'list'"
+          >
+            <i class="pi pi-list mr-1"></i>List
+          </button>
+          <button
+            [class]="viewMode === 'kanban' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'"
+            class="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
+            (click)="viewMode = 'kanban'"
+          >
+            <i class="pi pi-th-large mr-1"></i>Kanban
+          </button>
+        </div>
+
+        <!-- Add Task Button -->
+        <button
+          type="button"
+          pButton
+          icon="pi pi-plus"
+          label="Add Task"
+          class="p-button-primary"
+          styleClass="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+          (click)="showAddEditTaskDialog()"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Progress Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-600 text-sm font-medium">Total Tasks</p>
+            <p class="text-2xl font-bold text-blue-800">{{ taskProgress.total }}</p>
+          </div>
+          <div class="bg-blue-100 p-3 rounded-lg">
+            <i class="pi pi-list text-blue-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-yellow-600 text-sm font-medium">Pending</p>
+            <p class="text-2xl font-bold text-yellow-800">
+              {{ getTasksByStatus(TasksStatus.Pending).length }}
+            </p>
+          </div>
+          <div class="bg-yellow-100 p-3 rounded-lg">
+            <i class="pi pi-clock text-yellow-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-indigo-600 text-sm font-medium">In Progress</p>
+            <p class="text-2xl font-bold text-indigo-800">
+              {{ getTasksByStatus(TasksStatus.InProgress).length }}
+            </p>
+          </div>
+          <div class="bg-indigo-100 p-3 rounded-lg">
+            <i class="pi pi-sync text-indigo-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-green-600 text-sm font-medium">Completed</p>
+            <p class="text-2xl font-bold text-green-800">{{ taskProgress.completed }}</p>
+          </div>
+          <div class="bg-green-100 p-3 rounded-lg">
+            <i class="pi pi-check-circle text-green-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+        <span class="text-sm font-bold text-indigo-600">{{ taskProgress.percentage }}%</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+        <div 
+          class="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500 ease-out"
+          [style.width.%]="taskProgress.percentage"
+          [@progressAnimation]
+        ></div>
+      </div>
+    </div>
+
+    <!-- Filters and Controls -->
+    <div class="bg-gray-50 rounded-xl p-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Filter by Status</label>
+          <p-dropdown
+            [(ngModel)]="filterStatus"
+            [options]="getStatusFilterOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select status"
+            styleClass="w-full"
+            [showClear]="true"
+            inputStyleClass="p-3 text-sm bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Filter by Site</label>
+          <p-dropdown
+            [(ngModel)]="filterSite"
+            [options]="getSiteFilterOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select site"
+            styleClass="w-full"
+            [showClear]="true"
+            inputStyleClass="p-3 text-sm bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            appendTo="body"
+            [filter]="true"
+            filterBy="label"
+          ></p-dropdown>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Sort By</label>
+          <p-dropdown
+            [(ngModel)]="sortBy"
+            [options]="getSortOptions()"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            inputStyleClass="p-3 text-sm bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div class="flex items-end">
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <p-checkbox
+                [(ngModel)]="showCompletedTasks"
+                [binary]="true"
+                inputId="showCompleted"
+              ></p-checkbox>
+              Show Completed
+            </label>
+            <button
+              type="button"
+              class="text-indigo-600 hover:text-indigo-800 transition-colors"
+              (click)="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
+            >
+              <i [class]="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  <div *ngIf="bulkActionsVisible" class="bulk-actions-bar flex items-center justify-between">
+    <div class="flex items-center gap-3">
+              <div class="bulk-icon">
+          <i class="pi pi-check-circle text-lg"></i>
+        </div>
+      <div>
+        <span class="text-indigo-800 font-semibold text-lg">{{ selectedTasks.length }} tasks selected</span>
+        <p class="text-indigo-600 text-sm">Select an action to perform on all selected tasks</p>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <p-dropdown
+        [options]="taskStatusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Update Status"
+        styleClass="w-48"
+        (onChange)="bulkUpdateStatus($event.value)"
+        appendTo="body"
+      ></p-dropdown>
+      <button
+        type="button"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200"
+        (click)="selectedTasks = []; bulkActionsVisible = false"
+      >
+        Clear Selection
+      </button>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="viewMode === 'list'" class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <p-table
+        [value]="getFilteredTasks()"
+        [loading]="loading"
+        styleClass="p-datatable-striped p-datatable-sm"
+        responsiveLayout="stack"
+        [breakpoint]="'960px'"
+        [selectionMode]="'multiple'"
+        [(selection)]="selectedTasks"
+        (onRowSelect)="onSelectionChange()"
+        (onRowUnselect)="onSelectionChange()"
+        [@listAnimation]
+        dataKey="taskId"
+      >
+        <ng-template pTemplate="header">
+          <tr class="bg-gradient-to-r from-gray-50 to-gray-100">
+            <th style="width: 3rem"></th>
+            <th class="py-4 px-4 min-w-[200px]">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-tasks text-gray-500"></i>
+                Description
+              </div>
+            </th>
+            <th class="py-4 px-4 min-w-[120px]">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-map-marker text-gray-500"></i>
+                Site
+              </div>
+            </th>
+            <th class="py-4 px-4 min-w-[120px]">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-info-circle text-gray-500"></i>
+                Status
+              </div>
+            </th>
+            <th class="py-4 px-4 min-w-[150px]">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-calendar text-gray-500"></i>
+                Assignment Date
+              </div>
+            </th>
+            <th class="py-4 px-4 min-w-[150px]">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-calendar-check text-gray-500"></i>
+                Completion Date
+              </div>
+            </th>
+            <th class="py-4 px-4 min-w-[100px]">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-star text-gray-500"></i>
+                Priority
+              </div>
+            </th>
+            <th class="py-4 px-4 text-center" style="width: 200px">
+              <div class="flex items-center justify-center gap-2">
+                <i class="pi pi-cog text-gray-500"></i>
+                Actions
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-task let-rowIndex="rowIndex">
+          <tr class="hover:bg-indigo-50 transition-all duration-200 border-b border-gray-100">
+            <td>
+              <p-tableCheckbox [value]="task"></p-tableCheckbox>
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-medium text-gray-900">{{ task.description }}</div>
+              <div *ngIf="task.isFirstTask" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">
+                <i class="pi pi-star mr-1"></i>First Task
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-medium text-gray-900">{{ getSiteName(task.siteId) }}</div>
+            </td>
+            <td class="py-3 px-4">
+              <span [@statusAnimation] [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ' + getTaskStatusBadgeClass(task.status)">
+                {{ getTaskStatusLabel(task.status) }}
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <div class="text-sm">
+                <div class="font-medium text-gray-900">
+                  {{ task.assignmentDate | date:'MMM dd, yyyy' }}
+                </div>
+                <div class="text-gray-500">
+                  {{ task.assignmentDate | date:'HH:mm' }}
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="text-sm" *ngIf="task.completionDate; else noCompletion">
+                <div class="font-medium text-gray-900">
+                  {{ task.completionDate | date:'MMM dd, yyyy' }}
+                </div>
+                <div class="text-gray-500">
+                  {{ task.completionDate | date:'HH:mm' }}
+                </div>
+              </div>
+              <ng-template #noCompletion>
+                <span class="text-gray-400 text-sm">Not completed</span>
+              </ng-template>
+            </td>
+            <td class="py-3 px-4">
+              <span [class]="'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ' + getPriorityBadgeClass(getTaskPriority(task))">
+                <i [class]="getPriorityIcon(getTaskPriority(task)) + ' mr-1'"></i>
+                {{ getTaskPriority(task) }}
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <div class="table-actions">
+                <!-- Status Actions -->
+                <div class="action-button-group">
+                  <button
+                    *ngIf="task.status === TasksStatus.Pending"
+                    type="button"
+                    pButton
+                    pRipple
+                    class="p-button-text p-button-rounded p-button-sm"
+                    styleClass="text-green-600 hover:bg-green-100 border border-green-200"
+                    icon="pi pi-play"
+                    pTooltip="Start Task"
+                    (click)="quickStartTask(task)"
+                  ></button>
+                  <button
+                    *ngIf="task.status !== TasksStatus.Completed"
+                    type="button"
+                    pButton
+                    pRipple
+                    class="p-button-text p-button-rounded p-button-sm"
+                    styleClass="text-blue-600 hover:bg-blue-100 border border-blue-200"
+                    icon="pi pi-check"
+                    pTooltip="Complete Task"
+                    (click)="quickCompleteTask(task)"
+                  ></button>
+                </div>
+                
+                <!-- Management Actions -->
+                <div class="action-button-group">
+                  <button
+                    type="button"
+                    pButton
+                    pRipple
+                    class="p-button-text p-button-rounded p-button-sm"
+                    styleClass="text-purple-600 hover:bg-purple-100 border border-purple-200"
+                    icon="pi pi-box"
+                    pTooltip="Manage Articles"
+                    (click)="showArticleDialog(task)"
+                  ></button>
+                  <button
+                    type="button"
+                    pButton
+                    pRipple
+                    class="p-button-text p-button-rounded p-button-sm"
+                    styleClass="text-orange-600 hover:bg-orange-100 border border-orange-200"
+                    icon="pi pi-pencil"
+                    pTooltip="Edit Task"
+                    (click)="showAddEditTaskDialog(task)"
+                  ></button>
+                  <button
+                    type="button"
+                    pButton
+                    pRipple
+                    class="p-button-text p-button-rounded p-button-sm"
+                    styleClass="text-red-600 hover:bg-red-100 border border-red-200"
+                    icon="pi pi-trash"
+                    pTooltip="Delete Task"
+                    (click)="confirmDeleteTask(task)"
+                  ></button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center py-8">
+              <div class="flex flex-col items-center gap-4">
+                <i class="pi pi-inbox text-4xl text-gray-400"></i>
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">No tasks found</h3>
+                  <p class="text-gray-500">Try adjusting your filters or create a new task.</p>
+                </div>
+                <button
+                  type="button"
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  (click)="showAddEditTaskDialog()"
+                >
+                  Create First Task
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- Kanban View -->
+  <div *ngIf="viewMode === 'kanban'" class="grid grid-cols-1 md:grid-cols-3 gap-6" [@listAnimation]>
+    <!-- Pending Column -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="bg-yellow-50 border-b border-yellow-200 p-4">
+        <h3 class="text-lg font-semibold text-yellow-800 flex items-center gap-2">
+          <i class="pi pi-clock text-yellow-600"></i>
+          Pending
+          <span class="bg-yellow-200 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full">
+            {{ getTasksByStatus(TasksStatus.Pending).length }}
+          </span>
+        </h3>
+      </div>
+      <div 
+        class="p-4 min-h-[400px]"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, TasksStatus.Pending)"
+      >
+        <div
+          *ngFor="let task of getTasksByStatus(TasksStatus.Pending); trackBy: trackByTaskId"
+          class="kanban-card p-4 mb-3 cursor-move"
+          draggable="true"
+          (dragstart)="onDragStart($event, task)"
+        >
+          <div class="flex items-start justify-between mb-2">
+            <h4 class="font-medium text-gray-900 text-sm">{{ task.description }}</h4>
+            <div class="action-button-group">
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-green-600 hover:bg-green-100 border border-green-200"
+                icon="pi pi-play"
+                pTooltip="Start Task"
+                (click)="quickStartTask(task)"
+              ></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-blue-600 hover:bg-blue-100 border border-blue-200"
+                icon="pi pi-check"
+                pTooltip="Complete Task"
+                (click)="quickCompleteTask(task)"
+              ></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-orange-600 hover:bg-orange-100 border border-orange-200"
+                icon="pi pi-pencil"
+                pTooltip="Edit Task"
+                (click)="showAddEditTaskDialog(task)"
+              ></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-red-600 hover:bg-red-100 border border-red-200"
+                icon="pi pi-trash"
+                pTooltip="Delete Task"
+                (click)="confirmDeleteTask(task)"
+              ></button>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 mb-2">{{ getSiteName(task.siteId) }}</div>
+          <div class="flex items-center justify-between">
+            <span [class]="'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ' + getPriorityBadgeClass(getTaskPriority(task))">
+              <i [class]="getPriorityIcon(getTaskPriority(task)) + ' mr-1'"></i>
+              {{ getTaskPriority(task) }}
+            </span>
+            <div *ngIf="task.isFirstTask" class="text-red-500">
+              <i class="pi pi-star text-xs"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Progress Column -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="bg-blue-50 border-b border-blue-200 p-4">
+        <h3 class="text-lg font-semibold text-blue-800 flex items-center gap-2">
+          <i class="pi pi-sync text-blue-600"></i>
+          In Progress
+          <span class="bg-blue-200 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">
+            {{ getTasksByStatus(TasksStatus.InProgress).length }}
+          </span>
+        </h3>
+      </div>
+      <div 
+        class="p-4 min-h-[400px]"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, TasksStatus.InProgress)"
+      >
+        <div
+          *ngFor="let task of getTasksByStatus(TasksStatus.InProgress); trackBy: trackByTaskId"
+          class="kanban-card p-4 mb-3 cursor-move"
+          draggable="true"
+          (dragstart)="onDragStart($event, task)"
+        >
+          <div class="flex items-start justify-between mb-2">
+            <h4 class="font-medium text-gray-900 text-sm">{{ task.description }}</h4>
+            <div class="action-button-group">
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-blue-600 hover:bg-blue-100 border border-blue-200"
+                icon="pi pi-check"
+                pTooltip="Complete Task"
+                (click)="quickCompleteTask(task)"
+              ></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-orange-600 hover:bg-orange-100 border border-orange-200"
+                icon="pi pi-pencil"
+                pTooltip="Edit Task"
+                (click)="showAddEditTaskDialog(task)"
+              ></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-red-600 hover:bg-red-100 border border-red-200"
+                icon="pi pi-trash"
+                pTooltip="Delete Task"
+                (click)="confirmDeleteTask(task)"
+              ></button>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 mb-2">{{ getSiteName(task.siteId) }}</div>
+          <div class="flex items-center justify-between">
+            <span [class]="'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ' + getPriorityBadgeClass(getTaskPriority(task))">
+              <i [class]="getPriorityIcon(getTaskPriority(task)) + ' mr-1'"></i>
+              {{ getTaskPriority(task) }}
+            </span>
+            <div *ngIf="task.isFirstTask" class="text-red-500">
+              <i class="pi pi-star text-xs"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed Column -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="bg-green-50 border-b border-green-200 p-4">
+        <h3 class="text-lg font-semibold text-green-800 flex items-center gap-2">
+          <i class="pi pi-check-circle text-green-600"></i>
+          Completed
+          <span class="bg-green-200 text-green-800 text-xs font-bold px-2 py-1 rounded-full">
+            {{ getTasksByStatus(TasksStatus.Completed).length }}
+          </span>
+        </h3>
+      </div>
+      <div 
+        class="p-4 min-h-[400px]"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, TasksStatus.Completed)"
+      >
+        <div
+          *ngFor="let task of getTasksByStatus(TasksStatus.Completed); trackBy: trackByTaskId"
+          class="kanban-card p-4 mb-3 cursor-move opacity-75"
+          draggable="true"
+          (dragstart)="onDragStart($event, task)"
+        >
+          <div class="flex items-start justify-between mb-2">
+            <h4 class="font-medium text-gray-900 text-sm line-through">{{ task.description }}</h4>
+            <div class="action-button-group">
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-orange-600 hover:bg-orange-100 border border-orange-200"
+                icon="pi pi-pencil"
+                pTooltip="Edit Task"
+                (click)="showAddEditTaskDialog(task)"
+              ></button>
+              <button
+                type="button"
+                pButton
+                pRipple
+                class="p-button-text p-button-rounded p-button-sm"
+                styleClass="text-red-600 hover:bg-red-100 border border-red-200"
+                icon="pi pi-trash"
+                pTooltip="Delete Task"
+                (click)="confirmDeleteTask(task)"
+              ></button>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 mb-2">{{ getSiteName(task.siteId) }}</div>
+          <div class="text-xs text-green-600 mb-2" *ngIf="task.completionDate">
+            Completed: {{ task.completionDate | date:'MMM dd, HH:mm' }}
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+              <i class="pi pi-check-circle mr-1"></i>
+              Completed
+            </span>
+            <div *ngIf="task.isFirstTask" class="text-red-500">
+              <i class="pi pi-star text-xs"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Dialog -->
+  <p-dialog
+    [(visible)]="taskDialog"
+    [modal]="true"
+    [style]="{ width: '40rem' }"
+    [draggable]="false"
+    [resizable]="false"
+    header="{{ isEditingTask ? 'Edit Task' : 'Add New Task' }}"
+    styleClass="p-dialog-lg"
+  >
+    <form [formGroup]="taskForm" (ngSubmit)="onTaskSubmit()" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label for="description" class="block mb-2 text-sm font-medium text-gray-700">Description *</label>
+          <textarea
+            pInputTextarea
+            id="description"
+            formControlName="description"
+            rows="3"
+            class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            placeholder="Enter task description"
+          ></textarea>
+          <div *ngIf="getTaskFieldError('description')" class="text-red-500 text-xs mt-1">
+            {{ getTaskFieldError('description') }}
+          </div>
+        </div>
+
+        <div>
+          <label for="status" class="block mb-2 text-sm font-medium text-gray-700">Status *</label>
+          <p-dropdown
+            id="status"
+            formControlName="status"
+            [options]="taskStatusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select status"
+            styleClass="w-full"
+            inputStyleClass="p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            appendTo="body"
+            [baseZIndex]="1000"
+          ></p-dropdown>
+          <div *ngIf="getTaskFieldError('status')" class="text-red-500 text-xs mt-1">
+            {{ getTaskFieldError('status') }}
+          </div>
+        </div>
+
+        <div>
+          <label for="siteId" class="block mb-2 text-sm font-medium text-gray-700">Site *</label>
+          <p-dropdown
+            id="siteId"
+            formControlName="siteId"
+            [options]="sites"
+            optionLabel="name"
+            optionValue="siteId"
+            placeholder="Select site"
+            styleClass="w-full"
+            inputStyleClass="p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            appendTo="body"
+            [baseZIndex]="1000"
+            [filter]="true"
+            filterBy="name"
+          ></p-dropdown>
+          <div *ngIf="getTaskFieldError('siteId')" class="text-red-500 text-xs mt-1">
+            {{ getTaskFieldError('siteId') }}
+          </div>
+        </div>
+
+        <div>
+          <label for="completionDate" class="block mb-2 text-sm font-medium text-gray-700">Completion Date</label>
+          <input
+            type="datetime-local"
+            id="completionDate"
+            formControlName="completionDate"
+            class="w-full p-3 text-sm bg-gray-50 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 native-date-input"
+            placeholder="Select completion date"
+          />
+        </div>
+
+        <div class="flex items-center">
+          <p-checkbox
+            formControlName="isFirstTask"
+            [binary]="true"
+            inputId="isFirstTask"
+          ></p-checkbox>
+          <label for="isFirstTask" class="ml-2 text-sm font-medium text-gray-700">
+            Mark as first task
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <button
+          type="button"
+          pButton
+          icon="pi pi-times"
+          label="Cancel"
+          class="p-button-outlined"
+          (click)="taskDialog = false"
+        ></button>
+        <button
+          type="submit"
+          pButton
+          [icon]="isEditingTask ? 'pi pi-check' : 'pi pi-plus'"
+          label="{{ isEditingTask ? 'Update Task' : 'Create Task' }}"
+          class="p-button-primary"
+          [disabled]="loading"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Articles Dialog -->
+  <p-dialog
+    [(visible)]="articleDialog"
+    [modal]="true"
+    [style]="{ width: '50rem' }"
+    [draggable]="false"
+    [resizable]="false"
+    header="Manage Task Articles"
+    styleClass="p-dialog-lg"
+  >
+    <div class="space-y-4">
+      <div>
+        <h4 class="font-medium text-gray-900 mb-2">Task: {{ selectedTask?.description }}</h4>
+        <p class="text-sm text-gray-600">Select articles to assign to this task</p>
+      </div>
+
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-700">Available Articles</label>
+        <p-pickList
+          [source]="articles"
+          [target]="selectedArticles"
+          (targetChange)="onTargetChange($event)"
+          sourceHeader="Available"
+          targetHeader="Selected"
+          [responsive]="true"
+          [showSourceControls]="false"
+          [showTargetControls]="false"
+          [dragdrop]="true"
+          [sourceStyle]="{'height':'300px'}"
+          [targetStyle]="{'height':'300px'}"
+        >
+          <ng-template let-article pTemplate="item">
+            <div class="flex items-center gap-3 p-2">
+              <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <i class="pi pi-box text-indigo-600"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900">{{ article.name }}</div>
+                <div class="text-sm text-gray-500">{{ article.description }}</div>
+              </div>
+            </div>
+          </ng-template>
+        </p-pickList>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <button
+          type="button"
+          pButton
+          icon="pi pi-times"
+          label="Cancel"
+          class="p-button-outlined"
+          (click)="articleDialog = false"
+        ></button>
+        <button
+          type="button"
+          pButton
+          icon="pi pi-check"
+          label="Assign Articles"
+          class="p-button-primary"
+          (click)="onArticleSubmit()"
+          [disabled]="loading"
+        ></button>
+      </div>
+    </div>
+  </p-dialog>
+</div>

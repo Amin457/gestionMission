@@ -1,0 +1,426 @@
+<div class="mission-calendar-container">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Header Section -->
+  <div class="header-section bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-xl shadow-lg mb-4">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold mb-1">Mission Calendar</h1>
+        <p class="text-indigo-100 text-sm">Driver Schedule Management</p>
+      </div>
+      
+      <div class="flex flex-wrap gap-2">
+        <!-- View Toggle -->
+        <div class="flex bg-white bg-opacity-20 rounded-lg p-1">
+          <button
+            *ngFor="let view of calendarViews"
+            [class]="currentView === view.value ? 'bg-white text-indigo-600' : 'text-white hover:bg-white hover:bg-opacity-20'"
+            class="px-3 py-1 rounded-md text-sm font-medium transition-all duration-200"
+            (click)="onViewChange(view.value)"
+          >
+            <i [class]="view.icon" class="mr-1"></i>
+            {{ view.label }}
+          </button>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex bg-white bg-opacity-20 rounded-lg p-1">
+          <button
+            pButton
+            icon="pi pi-chevron-left"
+            class="p-button-text p-button-sm text-white hover:bg-white hover:bg-opacity-20"
+            (click)="previousPeriod()"
+          ></button>
+          <button
+            pButton
+            icon="pi pi-calendar"
+            class="p-button-text p-button-sm text-white hover:bg-white hover:bg-opacity-20"
+            (click)="goToToday()"
+          ></button>
+          <button
+            pButton
+            icon="pi pi-chevron-right"
+            class="p-button-text p-button-sm text-white hover:bg-white hover:bg-opacity-20"
+            (click)="nextPeriod()"
+          ></button>
+        </div>
+
+        <!-- Quick Add -->
+        <button
+          pButton
+          icon="pi pi-plus"
+          label="Add Mission"
+          class="p-button-success p-button-sm"
+          (click)="showQuickAddDialog = true"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Period Title -->
+    <div class="mt-3 text-center">
+      <h2 class="text-lg font-semibold">{{ getViewTitle() }}</h2>
+    </div>
+  </div>
+
+  <!-- Compact Filters -->
+  <div class="compact-filters bg-white rounded-xl shadow-lg p-4 mb-4">
+    <div class="flex flex-col sm:flex-row gap-4 items-center">
+      <!-- Search -->
+      <div class="flex-1 min-w-0">
+        <input
+          pInputText
+          [(ngModel)]="searchTerm"
+          placeholder="Search missions..."
+          class="w-full"
+          (input)="onFilterChange()"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700">Status:</span>
+        <div class="flex gap-1">
+          <button
+            *ngFor="let status of statusOptions"
+            [class]="selectedStatuses.includes(status.value) ? 'bg-' + status.color + ' text-white' : 'bg-gray-100 text-gray-700'"
+            class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 hover:opacity-80"
+            (click)="toggleStatusFilter(status.value)"
+          >
+            {{ status.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700">Type:</span>
+        <div class="flex gap-1">
+          <button
+            *ngFor="let type of typeOptions"
+            [class]="selectedTypes.includes(type.value) ? 'bg-' + type.color + ' text-white' : 'bg-gray-100 text-gray-700'"
+            class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 hover:opacity-80"
+            (click)="toggleTypeFilter(type.value)"
+          >
+            {{ type.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Clear Filters -->
+      <button
+        pButton
+        icon="pi pi-refresh"
+        class="p-button-outlined p-button-sm"
+        (click)="clearFilters()"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Calendar Table -->
+  <div class="calendar-table-container bg-white rounded-xl shadow-lg overflow-hidden">
+    <div *ngIf="loading" class="flex justify-center items-center h-64">
+      <div class="text-center">
+        <i class="pi pi-spin pi-spinner text-4xl text-indigo-600 mb-4"></i>
+        <p class="text-gray-600">Loading calendar...</p>
+      </div>
+    </div>
+
+    <div *ngIf="!loading" class="calendar-table">
+      <!-- Table Header -->
+      <div class="calendar-header">
+        <div class="driver-header">
+          <div class="driver-info">
+            <span class="text-sm font-medium text-gray-600">Drivers</span>
+          </div>
+        </div>
+        <div class="days-header">
+          <div 
+            *ngFor="let day of days" 
+            class="day-header"
+            [class.today]="isToday(day)"
+            [class.weekend]="isWeekend(day)"
+          >
+            <div class="day-name">{{ formatDayHeader(day) }}</div>
+            <div class="day-date">{{ day.getDate() }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Body -->
+      <div class="calendar-body">
+        <div 
+          *ngFor="let driverDay of driverDays" 
+          class="driver-row"
+        >
+          <!-- Driver Info -->
+          <div class="driver-info">
+            <div class="driver-avatar" [style.background-color]="getDriverColor(driverDay.driver.userId)"></div>
+            <div class="driver-details">
+              <div class="driver-name">{{ driverDay.driver.firstName }} {{ driverDay.driver.lastName }}</div>
+              <div class="driver-stats">{{ driverDay.totalMissions }} missions</div>
+            </div>
+          </div>
+
+          <!-- Days -->
+          <div class="days-row">
+            <div 
+              *ngFor="let dayData of driverDay.days" 
+              class="day-cell"
+              [class.today]="dayData.isToday"
+              [class.weekend]="dayData.isWeekend"
+              (click)="onDayClick(dayData.date, driverDay.driver)"
+            >
+              <div class="missions-container">
+                <div 
+                  *ngFor="let mission of dayData.missions" 
+                  class="mission-item"
+                  [style.background-color]="getStatusColor(mission.status)"
+                  (click)="onMissionClick(mission); $event.stopPropagation()"
+                  pTooltip="{{ mission.service }} - {{ mission.receiver }}"
+                >
+                  <div class="mission-content">
+                    <div class="mission-title">{{ mission.service }}</div>
+                    <div class="mission-receiver">{{ mission.receiver }}</div>
+                    <div class="mission-status">{{ MissionStatus[mission.status] }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Mission Dialog -->
+  <p-dialog
+    [(visible)]="showQuickAddDialog"
+    [modal]="true"
+    [style]="{ width: '40rem' }"
+    [draggable]="false"
+    [resizable]="false"
+    [header]="isEditing ? 'Edit Mission' : 'Add Mission'"
+    styleClass="p-dialog-lg"
+  >
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Service *</label>
+          <input
+            pInputText
+            [(ngModel)]="quickAddForm.service"
+            placeholder="Enter service description"
+            class="w-full"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Receiver *</label>
+          <input
+            pInputText
+            [(ngModel)]="quickAddForm.receiver"
+            placeholder="Enter receiver"
+            class="w-full"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Driver *</label>
+          <p-dropdown
+            [(ngModel)]="quickAddForm.driverId"
+            [options]="getDriversForDropdown()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select driver"
+            styleClass="w-full"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Date & Time *</label>
+          <p-calendar
+            [(ngModel)]="quickAddForm.desiredDate"
+            [showTime]="true"
+            [showSeconds]="false"
+            placeholder="Select date and time"
+            styleClass="w-full"
+            appendTo="body"
+          ></p-calendar>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Type</label>
+          <p-dropdown
+            [(ngModel)]="quickAddForm.type"
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Status</label>
+          <p-dropdown
+            [(ngModel)]="quickAddForm.status"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-3">
+        <button
+          pButton
+          icon="pi pi-times"
+          label="Cancel"
+          class="p-button-outlined"
+          (click)="showQuickAddDialog = false"
+        ></button>
+        <button
+          pButton
+          [icon]="isEditing ? 'pi pi-check' : 'pi pi-plus'"
+          [label]="isEditing ? 'Update Mission' : 'Create Mission'"
+          class="p-button-primary"
+          (click)="onQuickAddSubmit()"
+        ></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Mission Details Dialog -->
+  <p-dialog
+    [(visible)]="showEventDialog"
+    [modal]="true"
+    [style]="{ width: '50rem' }"
+    [draggable]="false"
+    [resizable]="false"
+    header="Mission Details"
+    styleClass="p-dialog-lg"
+  >
+    <div *ngIf="selectedMission" class="space-y-6">
+      <!-- Mission Header -->
+      <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">{{ selectedMission.service }}</h3>
+          </div>
+          <div class="flex gap-2">
+            <p-badge
+              [value]="MissionStatus[selectedMission.status]"
+              [severity]="selectedMission.status === MissionStatus.Completed ? 'success' : 
+                         selectedMission.status === MissionStatus.InProgress ? 'info' : 
+                         selectedMission.status === MissionStatus.Requested ? 'warning' : 'danger'"
+            ></p-badge>
+            <p-badge
+              [value]="MissionType[selectedMission.type]"
+              severity="secondary"
+            ></p-badge>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mission Details -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Service</label>
+            <p class="text-gray-900">{{ selectedMission.service }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Receiver</label>
+            <p class="text-gray-900">{{ selectedMission.receiver }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Driver</label>
+            <div class="flex items-center gap-2">
+              <div 
+                class="w-3 h-3 rounded-full"
+                [style.background-color]="getDriverColor(selectedMission.driverId)"
+              ></div>
+              <p class="text-gray-900">{{ getDriverName(selectedMission.driverId) }}</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Requester</label>
+            <p class="text-gray-900">{{ getDriverName(selectedMission.requesterId) }}</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Desired Date</label>
+            <p class="text-gray-900">{{ selectedMission.desiredDate | date:'medium' }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <p class="text-gray-900">{{ MissionStatus[selectedMission.status] }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <p class="text-gray-900">{{ MissionType[selectedMission.type] }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Created</label>
+            <p class="text-gray-900">{{ selectedMission.systemDate | date:'medium' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-6 border-t border-gray-200">
+        <div class="flex flex-col sm:flex-row gap-3 justify-end">
+          <!-- Primary Actions -->
+          <div class="flex gap-2">
+            <button
+              pButton
+              icon="pi pi-eye"
+              label="View Tasks"
+              class="p-button-outlined p-button-info"
+              (click)="navigateToTasks(selectedMission.missionId)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-file"
+              label="See Sheet"
+              class="p-button-outlined p-button-secondary"
+              (click)="viewMissionSheet(selectedMission)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              label="Edit Mission"
+              class="p-button-outlined p-button-primary"
+              (click)="editMission(selectedMission)"
+            ></button>
+          </div>
+          
+          <!-- Destructive Actions -->
+          <div class="flex gap-2">
+            <button
+              pButton
+              icon="pi pi-trash"
+              label="Delete Mission"
+              class="p-button-outlined p-button-danger"
+              (click)="deleteMission(selectedMission.missionId)"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+</div>
