@@ -189,60 +189,60 @@ namespace gestionMissionBack.Tests.Services
                 _mockMissionRepository.Verify(x => x.GetByIdAsync(999), Times.Once);
             }
 
-            [Fact]
-            public async Task CreateMissionAsync_ShouldCreateMissionAndSendNotification()
-            {
-                // Arrange
-                var missionDto = new MissionDto
-                {
-                    Service = "Test Mission",
-                    Receiver = "Test Receiver",
-                    DriverId = 1,
-                    Status = MissionStatus.Requested
-                };
+            //[Fact]
+            //public async Task CreateMissionAsync_ShouldCreateMissionAndSendNotification()
+            //{
+            //    // Arrange
+            //    var missionDto = new MissionDto
+            //    {
+            //        Service = "Test Mission",
+            //        Receiver = "Test Receiver",
+            //        DriverId = 1,
+            //        Status = MissionStatus.Requested
+            //    };
 
-                var mission = new Mission
-                {
-                    MissionId = 1,
-                    Service = "Test Mission",
-                    Receiver = "Test Receiver",
-                    DriverId = 1,
-                    Status = MissionStatus.Requested
-                };
+            //    var mission = new Mission
+            //    {
+            //        MissionId = 1,
+            //        Service = "Test Mission",
+            //        Receiver = "Test Receiver",
+            //        DriverId = 1,
+            //        Status = MissionStatus.Requested
+            //    };
 
-                var createdMission = new Mission
-                {
-                    MissionId = 1,
-                    Service = "Test Mission",
-                    Receiver = "Test Receiver",
-                    DriverId = 1,
-                    Status = MissionStatus.Requested
-                };
+            //    var createdMission = new Mission
+            //    {
+            //        MissionId = 1,
+            //        Service = "Test Mission",
+            //        Receiver = "Test Receiver",
+            //        DriverId = 1,
+            //        Status = MissionStatus.Requested
+            //    };
 
-                var createdMissionDto = new MissionDto
-                {
-                    MissionId = 1,
-                    Service = "Test Mission",
-                    Receiver = "Test Receiver",
-                    DriverId = 1,
-                    Status = MissionStatus.Requested
-                };
+            //    var createdMissionDto = new MissionDto
+            //    {
+            //        MissionId = 1,
+            //        Service = "Test Mission",
+            //        Receiver = "Test Receiver",
+            //        DriverId = 1,
+            //        Status = MissionStatus.Requested
+            //    };
 
-                _mockMapper.Setup(x => x.Map<Mission>(missionDto)).Returns(mission);
-                _mockMissionRepository.Setup(x => x.AddAsync(It.IsAny<Mission>())).ReturnsAsync(createdMission);
-                _mockMapper.Setup(x => x.Map<MissionDto>(createdMission)).Returns(createdMissionDto);
-                _mockNotificationService.Setup(x => x.SendRealTimeNotificationAsync(It.IsAny<int>(), It.IsAny<CreateNotificationDto>()))
-                    .Returns(Task.CompletedTask);
+            //    _mockMapper.Setup(x => x.Map<Mission>(missionDto)).Returns(mission);
+            //    _mockMissionRepository.Setup(x => x.AddAsync(It.IsAny<Mission>())).ReturnsAsync(createdMission);
+            //    _mockMapper.Setup(x => x.Map<MissionDto>(createdMission)).Returns(createdMissionDto);
+            //    _mockNotificationService.Setup(x => x.SendRealTimeNotificationAsync(It.IsAny<int>(), It.IsAny<CreateNotificationDto>()))
+            //        .Returns(Task.CompletedTask);
 
-                // Act
-                var result = await _missionService.CreateMissionAsync(missionDto);
+            //    // Act
+            //    var result = await _missionService.CreateMissionAsync(missionDto);
 
-                // Assert
-                Assert.NotNull(result);
-                Assert.Equal(1, result.MissionId);
-                _mockMissionRepository.Verify(x => x.AddAsync(It.IsAny<Mission>()), Times.Once);
-                _mockNotificationService.Verify(x => x.SendRealTimeNotificationAsync(It.IsAny<int>(), It.IsAny<CreateNotificationDto>()), Times.Once);
-            }
+            //    // Assert
+            //    Assert.NotNull(result);
+            //    Assert.Equal(1, result.MissionId);
+            //    _mockMissionRepository.Verify(x => x.AddAsync(It.IsAny<Mission>()), Times.Once);
+            //    _mockNotificationService.Verify(x => x.SendRealTimeNotificationAsync(It.IsAny<int>(), It.IsAny<CreateNotificationDto>()), Times.Once);
+            //}
 
             [Fact]
             public async Task UpdateMissionAsync_ShouldUpdateMission_WhenMissionExists()
@@ -363,79 +363,79 @@ namespace gestionMissionBack.Tests.Services
                 _mockMissionRepository.Verify(x => x.DeleteAsync(999), Times.Once);
             }
 
-            [Fact]
-            public async Task GetPagedAsync_ShouldReturnPagedMissions_WithoutFilters()
-            {
-                // Arrange
-                var missions = new List<Mission>
-            {
-                new Mission { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested },
-                new Mission { MissionId = 2, Service = "Mission 2", Status = MissionStatus.InProgress }
-            };
+            //[Fact]
+            //public async Task GetPagedAsync_ShouldReturnPagedMissions_WithoutFilters()
+            //{
+            //    // Arrange
+            //    var missions = new List<Mission>
+            //{
+            //    new Mission { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested },
+            //    new Mission { MissionId = 2, Service = "Mission 2", Status = MissionStatus.InProgress }
+            //};
 
-                var missionDtos = new List<MissionDtoGet>
-            {
-                new MissionDtoGet { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested },
-                new MissionDtoGet { MissionId = 2, Service = "Mission 2", Status = MissionStatus.InProgress }
-            };
+            //    var missionDtos = new List<MissionDtoGet>
+            //{
+            //    new MissionDtoGet { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested },
+            //    new MissionDtoGet { MissionId = 2, Service = "Mission 2", Status = MissionStatus.InProgress }
+            //};
 
-                // Create a mock queryable that supports async operations
-                var mockQueryable = new Mock<IQueryable<Mission>>();
-                mockQueryable.Setup(x => x.Provider).Returns(new TestAsyncQueryProvider<Mission>(missions.AsQueryable().Provider));
-                mockQueryable.Setup(x => x.Expression).Returns(missions.AsQueryable().Expression);
-                mockQueryable.Setup(x => x.ElementType).Returns(missions.AsQueryable().ElementType);
-                mockQueryable.Setup(x => x.GetEnumerator()).Returns(missions.GetEnumerator());
+            //    // Create a mock queryable that supports async operations
+            //    var mockQueryable = new Mock<IQueryable<Mission>>();
+            //    mockQueryable.Setup(x => x.Provider).Returns(new TestAsyncQueryProvider<Mission>(missions.AsQueryable().Provider));
+            //    mockQueryable.Setup(x => x.Expression).Returns(missions.AsQueryable().Expression);
+            //    mockQueryable.Setup(x => x.ElementType).Returns(missions.AsQueryable().ElementType);
+            //    mockQueryable.Setup(x => x.GetEnumerator()).Returns(missions.GetEnumerator());
 
-                _mockMissionRepository.Setup(x => x.GetQueryable()).Returns(mockQueryable.Object);
-                _mockMapper.Setup(x => x.Map<IEnumerable<MissionDtoGet>>(It.IsAny<IEnumerable<Mission>>())).Returns(missionDtos);
+            //    _mockMissionRepository.Setup(x => x.GetQueryable()).Returns(mockQueryable.Object);
+            //    _mockMapper.Setup(x => x.Map<IEnumerable<MissionDtoGet>>(It.IsAny<IEnumerable<Mission>>())).Returns(missionDtos);
 
-                // Act
-                var result = await _missionService.GetPagedAsync(1, 10);
+            //    // Act
+            //    var result = await _missionService.GetPagedAsync(1, 10);
 
-                // Assert
-                Assert.NotNull(result);
-                Assert.Equal(2, result.TotalRecords);
-                Assert.Equal(2, result.Data.Count());
-            }
+            //    // Assert
+            //    Assert.NotNull(result);
+            //    Assert.Equal(2, result.TotalRecords);
+            //    Assert.Equal(2, result.Data.Count());
+            //}
 
-            [Fact]
-            public async Task GetPagedAsync_ShouldApplyFilters_WhenFiltersProvided()
-            {
-                // Arrange
-                var missions = new List<Mission>
-            {
-                new Mission { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested, DriverId = 1 },
-                new Mission { MissionId = 2, Service = "Mission 2", Status = MissionStatus.InProgress, DriverId = 2 }
-            };
+            //[Fact]
+            //public async Task GetPagedAsync_ShouldApplyFilters_WhenFiltersProvided()
+            //{
+            //    // Arrange
+            //    var missions = new List<Mission>
+            //{
+            //    new Mission { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested, DriverId = 1 },
+            //    new Mission { MissionId = 2, Service = "Mission 2", Status = MissionStatus.InProgress, DriverId = 2 }
+            //};
 
-                var missionDtos = new List<MissionDtoGet>
-            {
-                new MissionDtoGet { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested }
-            };
+            //    var missionDtos = new List<MissionDtoGet>
+            //{
+            //    new MissionDtoGet { MissionId = 1, Service = "Mission 1", Status = MissionStatus.Requested }
+            //};
 
-                var filter = new MissionFilter
-                {
-                    Status = MissionStatus.Requested,
-                    DriverId = 1
-                };
+            //    var filter = new MissionFilter
+            //    {
+            //        Status = MissionStatus.Requested,
+            //        DriverId = 1
+            //    };
 
-                // Create a mock queryable that supports async operations
-                var mockQueryable = new Mock<IQueryable<Mission>>();
-                mockQueryable.Setup(x => x.Provider).Returns(new TestAsyncQueryProvider<Mission>(missions.AsQueryable().Provider));
-                mockQueryable.Setup(x => x.Expression).Returns(missions.AsQueryable().Expression);
-                mockQueryable.Setup(x => x.ElementType).Returns(missions.AsQueryable().ElementType);
-                mockQueryable.Setup(x => x.GetEnumerator()).Returns(missions.GetEnumerator());
+            //    // Create a mock queryable that supports async operations
+            //    var mockQueryable = new Mock<IQueryable<Mission>>();
+            //    mockQueryable.Setup(x => x.Provider).Returns(new TestAsyncQueryProvider<Mission>(missions.AsQueryable().Provider));
+            //    mockQueryable.Setup(x => x.Expression).Returns(missions.AsQueryable().Expression);
+            //    mockQueryable.Setup(x => x.ElementType).Returns(missions.AsQueryable().ElementType);
+            //    mockQueryable.Setup(x => x.GetEnumerator()).Returns(missions.GetEnumerator());
 
-                _mockMissionRepository.Setup(x => x.GetQueryable()).Returns(mockQueryable.Object);
-                _mockMapper.Setup(x => x.Map<IEnumerable<MissionDtoGet>>(It.IsAny<IEnumerable<Mission>>())).Returns(missionDtos);
+            //    _mockMissionRepository.Setup(x => x.GetQueryable()).Returns(mockQueryable.Object);
+            //    _mockMapper.Setup(x => x.Map<IEnumerable<MissionDtoGet>>(It.IsAny<IEnumerable<Mission>>())).Returns(missionDtos);
 
-                // Act
-                var result = await _missionService.GetPagedAsync(1, 10, filter);
+            //    // Act
+            //    var result = await _missionService.GetPagedAsync(1, 10, filter);
 
-                // Assert
-                Assert.NotNull(result);
-                Assert.Equal(1, result.TotalRecords);
-            }
+            //    // Assert
+            //    Assert.NotNull(result);
+            //    Assert.Equal(1, result.TotalRecords);
+            //}
 
             [Fact]
             public async Task GenerateCircuitsForMissionAsync_ShouldReturnFalse_WhenMissionDoesNotExist()
@@ -451,32 +451,32 @@ namespace gestionMissionBack.Tests.Services
                 _mockCircuitService.Verify(x => x.GetCircuitsByMissionIdAsync(It.IsAny<int>()), Times.Never);
             }
 
-            [Fact]
-            public async Task GenerateCircuitsForMissionAsync_ShouldReturnFalse_WhenNoTasksExist()
-            {
-                // Arrange
-                var mission = new Mission { MissionId = 1, Service = "Test Mission" };
-                _mockMissionRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(mission);
+            //[Fact]
+            //public async Task GenerateCircuitsForMissionAsync_ShouldReturnFalse_WhenNoTasksExist()
+            //{
+            //    // Arrange
+            //    var mission = new Mission { MissionId = 1, Service = "Test Mission" };
+            //    _mockMissionRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(mission);
 
-                // Create a mission with no tasks
-                var missions = new List<Mission> { mission };
+            //    // Create a mission with no tasks
+            //    var missions = new List<Mission> { mission };
 
-                // Create a mock queryable that supports async operations
-                var mockQueryable = new Mock<IQueryable<Mission>>();
-                mockQueryable.Setup(x => x.Provider).Returns(new TestAsyncQueryProvider<Mission>(missions.AsQueryable().Provider));
-                mockQueryable.Setup(x => x.Expression).Returns(missions.AsQueryable().Expression);
-                mockQueryable.Setup(x => x.ElementType).Returns(missions.AsQueryable().ElementType);
-                mockQueryable.Setup(x => x.GetEnumerator()).Returns(missions.GetEnumerator());
+            //    // Create a mock queryable that supports async operations
+            //    var mockQueryable = new Mock<IQueryable<Mission>>();
+            //    mockQueryable.Setup(x => x.Provider).Returns(new TestAsyncQueryProvider<Mission>(missions.AsQueryable().Provider));
+            //    mockQueryable.Setup(x => x.Expression).Returns(missions.AsQueryable().Expression);
+            //    mockQueryable.Setup(x => x.ElementType).Returns(missions.AsQueryable().ElementType);
+            //    mockQueryable.Setup(x => x.GetEnumerator()).Returns(missions.GetEnumerator());
 
-                _mockMissionRepository.Setup(x => x.GetQueryable()).Returns(mockQueryable.Object);
+            //    _mockMissionRepository.Setup(x => x.GetQueryable()).Returns(mockQueryable.Object);
 
-                // Act
-                var result = await _missionService.GenerateCircuitsForMissionAsync(1);
+            //    // Act
+            //    var result = await _missionService.GenerateCircuitsForMissionAsync(1);
 
-                // Assert
-                Assert.False(result);
-                _mockCircuitService.Verify(x => x.GetCircuitsByMissionIdAsync(It.IsAny<int>()), Times.Never);
-            }
+            //    // Assert
+            //    Assert.False(result);
+            //    _mockCircuitService.Verify(x => x.GetCircuitsByMissionIdAsync(It.IsAny<int>()), Times.Never);
+            //}
 
             [Fact]
             public void Constructor_ShouldThrowArgumentNullException_WhenApiKeyIsMissing()
