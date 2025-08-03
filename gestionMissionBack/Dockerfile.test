@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["gestionMissionBack.Api/gestionMissionBack.Api.csproj", "gestionMissionBack.Api/"]
+COPY ["gestionMissionBack.Application/gestionMissionBack.Application.csproj", "gestionMissionBack.Application/"]
+COPY ["gestionMissionBack.Infrastructure/gestionMissionBack.Infrastructure.csproj", "gestionMissionBack.Infrastructure/"]
+COPY ["gestionMissionBack.Domain/gestionMissionBack.Domain.csproj", "gestionMissionBack.Domain/"]
+# Add test project if it exists
+COPY ["gestionMissionBack.Tests/gestionMissionBack.Tests.csproj", "gestionMissionBack.Tests/"]
+RUN dotnet restore "gestionMissionBack.Api/gestionMissionBack.Api.csproj"
+RUN dotnet restore "gestionMissionBack.Tests/gestionMissionBack.Tests.csproj"
+COPY . .
+WORKDIR "/src/gestionMissionBack.Api"
+RUN dotnet build "gestionMissionBack.Api.csproj" -c Release -o /app/build
+WORKDIR "/src/gestionMissionBack.Tests"
+RUN dotnet build "gestionMissionBack.Tests.csproj" -c Release -o /app/build
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS test
+WORKDIR /app
+COPY --from=build /app/build .
+# Default command to run tests
+CMD ["dotnet", "test", "--configuration", "Release", "--no-build"] 
