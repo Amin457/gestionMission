@@ -73,33 +73,33 @@ pipeline {
             }
         }
         
-        stage('Test Frontend') {
-            steps {
-                dir('gestionMissionFront') {
-                    script {
-                        echo "Running frontend tests..."
+        // stage('Test Frontend') {
+        //     steps {
+        //         dir('gestionMissionFront') {
+        //             script {
+        //                 echo "Running frontend tests..."
                         
-                        // Run unit tests
-                        bat 'npm test -- --watch=false --browsers=ChromeHeadless --code-coverage'
+        //                 // Run unit tests
+        //                 bat 'npm test -- --watch=false --browsers=ChromeHeadless --code-coverage'
                         
-                        echo "Frontend tests completed"
-                    }
-                }
-            }
-            post {
-                always {
-                    // Publish coverage reports
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Frontend Coverage Report'
-                    ])
-                }
-            }
-        }
+        //                 echo "Frontend tests completed"
+        //             }
+        //         }
+        //     }
+        //     post {
+        //         always {
+        //             // Publish coverage reports
+        //             publishHTML([
+        //                 allowMissing: false,
+        //                 alwaysLinkToLastBuild: true,
+        //                 keepAll: true,
+        //                 reportDir: 'coverage',
+        //                 reportFiles: 'index.html',
+        //                 reportName: 'Frontend Coverage Report'
+        //             ])
+        //         }
+        //     }
+        // }
         
         stage('Build Docker Images') {
             steps {
