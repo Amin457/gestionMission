@@ -40,7 +40,6 @@ pipeline {
                     script {
                         echo "Running backend tests..."
                         
-                        // Run unit tests
                         bat 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
                         
                         echo "Backend tests completed"
@@ -49,11 +48,12 @@ pipeline {
             }
             post {
                 always {
-                    // Publish test results
-                    publishTestResults testResultsPattern: '**/test-results.trx'
+                    // Publier les résultats MSTest
+                    mstest testResultsFile: '**/test-results.trx'
                 }
             }
         }
+
         
         stage('Build Frontend') {
             steps {
