@@ -107,10 +107,10 @@ pipeline {
                     echo "Building Docker images..."
                     
                     // Build backend image
-                    sh "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
+                    bat "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
                     
                     // Build frontend image
-                    sh "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
+                    bat "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
                     
                     echo "Docker images built successfully"
                 }
@@ -123,7 +123,7 @@ pipeline {
                     echo "Testing Docker images..."
                     
                     // Test backend container
-                    sh "docker run --rm ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} dotnet test --configuration Release --no-build"
+                    bat "docker run --rm ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} dotnet test --configuration Release --no-build"
                     
                     echo "Docker image tests completed"
                 }
@@ -143,12 +143,12 @@ pipeline {
                     echo "Pushing images to registry..."
                     
                     // Tag images for registry
-                    sh "docker tag ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
-                    sh "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                    bat "docker tag ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                    bat "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
                     
                     // Push to registry (uncomment when you have a registry)
-                    // sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
-                    // sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                    // bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                    // bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
                     
                     echo "Images pushed to registry successfully"
                 }
@@ -167,19 +167,19 @@ pipeline {
                     echo "Deploying with Docker Compose..."
                     
                     // Stop existing containers
-                    sh "docker-compose down"
+                    bat "docker-compose down"
                     
                     // Pull latest images
-                    sh "docker-compose pull"
+                    bat "docker-compose pull"
                     
                     // Start services
-                    sh "docker-compose up -d"
+                    bat "docker-compose up -d"
                     
                     // Wait for services to be healthy
-                    sh "sleep 30"
+                    bat "timeout /t 30"
                     
                     // Check service status
-                    sh "docker-compose ps"
+                    bat "docker-compose ps"
                     
                     echo "Deployment completed successfully"
                 }
@@ -190,10 +190,10 @@ pipeline {
     post {
         always {
             // Clean up Docker images
-            sh "docker image prune -f"
+            bat "docker image prune -f"
             
             // Clean up containers
-            sh "docker container prune -f"
+            bat "docker container prune -f"
             
             echo "Pipeline completed"
         }
