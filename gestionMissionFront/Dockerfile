@@ -15,17 +15,19 @@ COPY . .
 # Construire l'application Angular en mode développement (sans SSR)
 RUN npx ng build --configuration=development --ssr=false
 
-# Étape 2 : image NGINX standard
-FROM nginx
+# Étape 2 : Serveur Node.js léger
+FROM node:18-alpine
+
+# Installer serve globalement pour servir les fichiers statiques
+RUN npm install -g serve
+
+WORKDIR /app
 
 # Copier l'application compilée depuis l'étape build
-COPY --from=build /app/dist/gestion-mission-front/browser /usr/share/nginx/html
+COPY --from=build /app/dist/gestion-mission-front/browser ./dist
 
-# Copier la configuration nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+# Exposer le port 3000
+EXPOSE 3000
 
-# Exposer le port 80
-EXPOSE 80
-
-# Lancer nginx en premier plan
-CMD ["nginx", "-g", "daemon off;"]
+# Lancer le serveur avec serve
+CMD ["serve", "-s", "dist", "-l", "3000"]

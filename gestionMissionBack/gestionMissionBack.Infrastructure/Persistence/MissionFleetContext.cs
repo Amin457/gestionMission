@@ -54,7 +54,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.ArticleId).HasName("PK__Article__9C6270C8AD0F3EFB");
 
-            entity.ToTable("Article");
+            entity.ToTable("Article", "dbo");
 
             entity.Property(e => e.ArticleId).HasColumnName("ArticleID");
             entity.Property(e => e.Name)
@@ -68,7 +68,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.CircuitId).HasName("PK__Circuit__7D21697020F37C3D");
 
-            entity.ToTable("Circuit");
+            entity.ToTable("Circuit", "dbo");
 
             entity.Property(e => e.CircuitId).HasColumnName("CircuitID");
             entity.Property(e => e.MissionId).HasColumnName("MissionID");
@@ -98,7 +98,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.DocumentId).HasName("PK__Document__1ABEEF6F3F9BB20D");
 
-            entity.ToTable("Document");
+            entity.ToTable("Document", "dbo");
 
             entity.Property(e => e.DocumentId).HasColumnName("DocumentID");
             entity.Property(e => e.Name)
@@ -123,7 +123,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.IncidentId).HasName("PK__Incident__3D80539215473664");
 
-            entity.ToTable("Incident");
+            entity.ToTable("Incident", "dbo");
 
             entity.Property(e => e.IncidentId).HasColumnName("IncidentID");
             entity.Property(e => e.Description).IsRequired();
@@ -149,7 +149,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.MissionId).HasName("PK__Mission__66DFB854D8A8E8BD");
 
-            entity.ToTable("Mission");
+            entity.ToTable("Mission", "dbo");
 
             entity.Property(e => e.MissionId).HasColumnName("MissionID");
 
@@ -207,7 +207,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.CostId).HasName("PK__MissionC__8285231E0764B8E9");
 
-            entity.ToTable("MissionCost");
+            entity.ToTable("MissionCost", "dbo");
 
             entity.Property(e => e.CostId).HasColumnName("CostID");
             entity.Property(e => e.MissionId).HasColumnName("MissionID");
@@ -230,7 +230,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E3219D351A6");
 
-            entity.ToTable("Notification");
+            entity.ToTable("Notification", "dbo");
 
             entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
             entity.Property(e => e.Message).IsRequired();
@@ -272,7 +272,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.RouteId).HasName("PK__Route__80979AAD76DC2E82");
 
-            entity.ToTable("Route");
+            entity.ToTable("Route", "dbo");
 
             entity.Property(e => e.RouteId).HasColumnName("RouteID");
             entity.Property(e => e.CircuitId).HasColumnName("CircuitID");
@@ -304,7 +304,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.TaskId).HasName("PK__Task__7C6949D18E3FD33F");
 
-            entity.ToTable("Task");
+            entity.ToTable("Task", "dbo");
 
             entity.Property(e => e.TaskId).HasColumnName("TaskID");
             entity.Property(e => e.Description).IsRequired();
@@ -332,13 +332,13 @@ public partial class MissionFleetContext : DbContext
 
             entity.HasMany(t => t.Articles)
             .WithMany(a => a.Tasks)
-            .UsingEntity(j => j.ToTable("TaskArticle"));
+            .UsingEntity(j => j.ToTable("TaskArticle", "dbo"));
         });
 
         modelBuilder.Entity<Site>(entity =>
         {
             entity.HasKey(e => e.SiteId);
-            entity.ToTable("Site");
+            entity.ToTable("Site", "dbo");
 
             entity.Property(e => e.SiteId).HasColumnName("SiteID");
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
@@ -359,7 +359,7 @@ public partial class MissionFleetContext : DbContext
         modelBuilder.Entity<City>(entity =>
         {
             entity.HasKey(e => e.CityId);
-            entity.ToTable("City");
+            entity.ToTable("City", "dbo");
 
             entity.Property(e => e.CityId).HasColumnName("CityID");
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
@@ -372,7 +372,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PK__User__1788CCACD0A71248");
 
-            entity.ToTable("User");
+            entity.ToTable("User", "dbo");
 
             entity.HasIndex(e => e.Email, "UQ__User__A9D10534D7BE49D1").IsUnique();
 
@@ -408,7 +408,7 @@ public partial class MissionFleetContext : DbContext
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.RoleId);
-            entity.ToTable("Role");
+            entity.ToTable("Role", "dbo");
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -436,7 +436,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.VehicleId).HasName("PK__Vehicle__476B54B22EA98523");
 
-            entity.ToTable("Vehicle");
+            entity.ToTable("Vehicle", "dbo");
 
             entity.HasIndex(e => e.LicensePlate, "UQ__Vehicle__026BC15C17EB5336").IsUnique();
 
@@ -458,7 +458,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.ReservationId).HasName("PK__VehicleR__B7EE5F04DE7C200E");
 
-            entity.ToTable("VehicleReservation");
+            entity.ToTable("VehicleReservation", "dbo");
 
             entity.Property(e => e.ReservationId).HasColumnName("ReservationID");
             entity.Property(e => e.Departure)
@@ -489,7 +489,7 @@ public partial class MissionFleetContext : DbContext
         {
             entity.HasKey(e => e.ConnectionId);
 
-            entity.ToTable("UserConnection");
+            entity.ToTable("UserConnection", "dbo");
 
             entity.Property(e => e.ConnectionId)
                 .HasMaxLength(100)

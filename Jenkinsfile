@@ -167,7 +167,7 @@ pipeline {
             }
             steps {
                 script {
-                    echo "Deploying with Docker Compose..."
+                    echo "Deploying with Docker Compose and monitoring..."
                     
                     // Stop existing containers
                     bat "docker-compose down"
@@ -175,7 +175,7 @@ pipeline {
                     // Pull latest images
                     bat "docker-compose pull"
                     
-                    // Start services
+                    // Start services with monitoring
                     bat "docker-compose up -d"
                     
                     // Wait for services to be healthy
@@ -185,6 +185,61 @@ pipeline {
                     bat "docker-compose ps"
                     
                     echo "Deployment completed successfully"
+                }
+            }
+        }
+        
+        stage('Monitoring Setup') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    echo "Setting up monitoring and observability..."
+                    
+                    // Wait for monitoring services to be ready
+                    bat "timeout /t 45"
+                    
+                    // Verify monitoring services
+                    bat "docker-compose ps"
+                    
+                    // Check Prometheus health
+                    bat "curl -f http://localhost:9090/-/healthy || echo 'Prometheus not ready yet'"
+                    
+                    // Check Grafana health
+                    bat "curl -f http://localhost:3001/api/health || echo 'Grafana not ready yet'"
+                    
+                    echo "Monitoring setup completed"
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    echo "Performing comprehensive health checks..."
+                    
+                    // Check application health
+                    bat "curl -f http://localhost:5000/health || echo 'Backend health check failed'"
+                    bat "curl -f http://localhost:3000 || echo 'Frontend health check failed'"
+                    
+                    // Check database connectivity
+                    bat "docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || echo 'Database health check failed'"
+                    
+                    // Check monitoring endpoints
+                    bat "curl -f http://localhost:9100/metrics || echo 'Node exporter not accessible'"
+                    bat "curl -f http://localhost:8080/metrics || echo 'cAdvisor not accessible'"
+                    
+                    echo "Health checks completed"
                 }
             }
         }

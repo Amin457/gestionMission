@@ -13,6 +13,7 @@ using System.Net.Http.Headers;
 using gestionMissionBack.Api.Hubs;
 using gestionMissionBack.Api.Services;
 using gestionMissionBack.Application.Interfaces;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,12 @@ builder.Services.AddSignalR(options =>
 // Register SignalR Service
 builder.Services.AddScoped<ISignalRService, SignalRService>();
 
+// Register Metrics Service
+builder.Services.AddScoped<IMetricsService, MetricsService>();
+
+// Add Prometheus Metrics
+builder.Services.AddHealthChecks();
+
 builder.Services.AddHttpClient("OpenRouteService", client =>
 {
     client.BaseAddress = new Uri("https://api.openrouteservice.org/");
@@ -73,10 +80,18 @@ if (app.Environment.IsDevelopment())
 }
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowAngularApp");
+
+// Add Prometheus Metrics Middleware
+app.UseMetricServer();
+app.UseHttpMetrics();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();
+
+// Map Prometheus Metrics Endpoint
+app.MapMetrics();
 
 // Map SignalR hub with the path that frontend expects
 app.MapHub<NotificationHub>("/api/notificationHub");
