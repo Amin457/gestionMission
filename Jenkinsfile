@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE_BACKEND = 'projetpfe-backend'
         DOCKER_IMAGE_FRONTEND = 'projetpfe-frontend'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'your-registry.com' // Change this to your registry
+        DOCKER_REGISTRY = 'docker.io/aminemelliti' // Change this to your registry
     }
     
     stages {
@@ -150,8 +150,8 @@ pipeline {
                     bat "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
                     
                     // Push to registry (uncomment when you have a registry)
-                    // bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
-                    // bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                    bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                    bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
                     
                     echo "Images pushed to registry successfully"
                 }

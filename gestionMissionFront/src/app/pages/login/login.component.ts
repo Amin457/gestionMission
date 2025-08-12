@@ -16,6 +16,8 @@ export class LoginComponent implements OnInit {
   password: string = '';
   isLoading: boolean = false;
   errorMessage: string = '';
+  showPassword: boolean = false;
+  rememberMe: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -23,7 +25,20 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // NoAuthGuard will handle redirecting authenticated users
+    // Check if user has saved credentials
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      this.email = savedEmail;
+      this.rememberMe = true;
+    }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    if (passwordInput) {
+      passwordInput.type = this.showPassword ? 'text' : 'password';
+    }
   }
 
   onSubmit() {
@@ -34,6 +49,13 @@ export class LoginComponent implements OnInit {
 
     this.isLoading = true;
     this.errorMessage = '';
+
+    // Save email if remember me is checked
+    if (this.rememberMe) {
+      localStorage.setItem('rememberedEmail', this.email);
+    } else {
+      localStorage.removeItem('rememberedEmail');
+    }
 
     const loginRequest: LoginRequest = {
       email: this.email,

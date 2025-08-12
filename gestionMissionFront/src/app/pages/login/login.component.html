@@ -1,58 +1,113 @@
 <div class="login-container">
-  <div class="login-card">
-    <div class="login-header">
-      <div class="logo">
-        <i class='bx bx-task'></i>
-        <h1>TaskTrail</h1>
+  <!-- Left side - Background with fleet context -->
+  <div class="login-background">
+    <div class="background-overlay">
+      <div class="fleet-context">
+        <div class="fleet-icon">
+          <i class='bx bx-car'></i>
+        </div>
+        <h2 class="fleet-title">Fleet Management System</h2>
+        <p class="fleet-subtitle">Efficiently manage your fleet operations, track missions, and coordinate drivers</p>
+        <div class="fleet-features">
+          <div class="feature-item">
+            <i class='bx bx-map'></i>
+            <span>Route Optimization</span>
+          </div>
+          <div class="feature-item">
+            <i class='bx bx-time'></i>
+            <span>Real-time Tracking</span>
+          </div>
+          <div class="feature-item">
+            <i class='bx bx-user-check'></i>
+            <span>Driver Management</span>
+          </div>
+        </div>
       </div>
-      <p class="subtitle">Welcome back! Please sign in to your account.</p>
     </div>
+  </div>
 
-    <form (ngSubmit)="onSubmit()" class="login-form">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          [(ngModel)]="email" 
-          name="email"
-          placeholder="Enter your email"
-          required
+  <!-- Right side - Login form -->
+  <div class="login-form-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo">
+          <img src="assets/applogo.png" alt="Fleet Logo" class="logo-image">
+          <div class="logo-text">
+            <h1>TaskTrail</h1>
+            <span class="tagline">Mission Control Center</span>
+          </div>
+        </div>
+        <p class="subtitle">Welcome back! Sign in to access your fleet dashboard.</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <label for="email">
+            <i class='bx bx-envelope'></i>
+            Email Address
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="email" 
+            name="email"
+            placeholder="Enter your email address"
+            required
+            [disabled]="isLoading"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            <i class='bx bx-lock-alt'></i>
+            Password
+          </label>
+          <div class="password-input-container">
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              id="password" 
+              [(ngModel)]="password" 
+              name="password"
+              placeholder="Enter your password"
+              required
+              [disabled]="isLoading"
+            >
+            <i 
+              [class]="showPassword ? 'bx bx-hide password-toggle' : 'bx bx-show password-toggle'"
+              (click)="togglePasswordVisibility()"
+            ></i>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" name="remember" [(ngModel)]="rememberMe">
+            <span class="checkmark"></span>
+            Remember me
+          </label>
+          <a href="#" class="forgot-password">Forgot Password?</a>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">
+          <i class='bx bx-error-circle'></i>
+          {{ errorMessage }}
+        </div>
+
+        <button 
+          type="submit" 
+          class="login-btn"
           [disabled]="isLoading"
         >
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          [(ngModel)]="password" 
-          name="password"
-          placeholder="Enter your password"
-          required
-          [disabled]="isLoading"
-        >
-      </div>
-
-      <div class="error-message" *ngIf="errorMessage">
-        <i class='bx bx-error-circle'></i>
-        {{ errorMessage }}
-      </div>
-
-      <button 
-        type="submit" 
-        class="login-btn"
-        [disabled]="isLoading"
-      >
-        <span *ngIf="!isLoading">Sign In</span>
-        <span *ngIf="isLoading">
-          <i class='bx bx-loader-alt bx-spin'></i>
-          Signing in...
-        </span>
-      </button>
-
-
-    </form>
+          <span *ngIf="!isLoading">
+            <i class='bx bx-log-in'></i>
+            Sign In
+          </span>
+          <span *ngIf="isLoading">
+            <i class='bx bx-loader-alt bx-spin'></i>
+            Signing in...
+          </span>
+        </button>
+      </form>
+    </div>
   </div>
 </div>

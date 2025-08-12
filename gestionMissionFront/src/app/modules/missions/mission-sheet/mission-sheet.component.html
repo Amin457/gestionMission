@@ -39,7 +39,7 @@
               Mission Sheet
             </h1>
           </div>
-          <p class="text-gray-600 text-sm">Mission #{{ mission.missionId }} - {{ mission.service }}</p>
+          <p class="text-gray-600 text-sm">Mission  {{ mission.service }}</p>
         </div>
         
         <div class="header-actions">
@@ -186,12 +186,7 @@
       </div>
       
       <div class="card-content">
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Mission ID</label>
-            <span class="font-mono text-indigo-600">#{{ mission.missionId }}</span>
-          </div>
-          
+        <div class="info-grid">          
           <div class="info-item">
             <label>Service</label>
             <span>{{ mission.service }}</span>
