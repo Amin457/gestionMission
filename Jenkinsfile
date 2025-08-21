@@ -291,18 +291,20 @@ pipeline {
     
     post {
         always {
-            // Clean up Docker images
-            if (IS_WINDOWS) {
-                bat "docker image prune -f"
-            } else {
-                sh "docker image prune -f"
-            }
-            
-            // Clean up containers
-            if (IS_WINDOWS) {
-                bat "docker container prune -f"
-            } else {
-                sh "docker container prune -f"
+            script {
+                // Clean up Docker images
+                if (IS_WINDOWS) {
+                    bat "docker image prune -f"
+                } else {
+                    sh "docker image prune -f"
+                }
+                
+                // Clean up containers
+                if (IS_WINDOWS) {
+                    bat "docker container prune -f"
+                } else {
+                    sh "docker container prune -f"
+                }
             }
             
             echo "Pipeline completed"
