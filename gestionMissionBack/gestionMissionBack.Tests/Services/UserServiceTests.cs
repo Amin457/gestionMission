@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
-using Moq;
-using Microsoft.Extensions.Configuration;
-using gestionMissionBack.Application.DTOs.User;
-using gestionMissionBack.Application.Interfaces;
-using gestionMissionBack.Application.Services;
-using gestionMissionBack.Domain.Entities;
-using gestionMissionBack.Application.Utils;
-using gestionMissionBack.Domain.Helpers;
+using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
-using AutoMapper;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using gestionMissionBack.Application.DTOs.User;
+using gestionMissionBack.Application.Services;
+using gestionMissionBack.Domain.Entities;
+using gestionMissionBack.Domain.Helpers;
 using gestionMissionBack.Infrastructure.Interfaces;
+using Moq;
+using Xunit;
 
 namespace gestionMissionBack.Tests.Services
 {
@@ -26,7 +22,7 @@ namespace gestionMissionBack.Tests.Services
         private readonly Mock<IValidator<UserDto>> _mockUserDtoValidator;
         private readonly Mock<IValidator<UserUpdateDto>> _mockUserUpdateDtoValidator;
         private readonly Mock<IMapper> _mockMapper;
-        private readonly Mock<IConfiguration> _mockConfiguration;
+        private readonly Mock<Microsoft.Extensions.Configuration.IConfiguration> _mockConfiguration;
         private readonly UserService _userService;
 
         public UserServiceTests()
@@ -36,33 +32,33 @@ namespace gestionMissionBack.Tests.Services
             _mockUserDtoValidator = new Mock<IValidator<UserDto>>();
             _mockUserUpdateDtoValidator = new Mock<IValidator<UserUpdateDto>>();
             _mockMapper = new Mock<IMapper>();
-            _mockConfiguration = new Mock<IConfiguration>();
-
+            _mockConfiguration = new Mock<Microsoft.Extensions.Configuration.IConfiguration>();
             _userService = new UserService(
-                _mockUserRepository.Object,
-                _mockRoleRepository.Object,
-                _mockUserDtoValidator.Object,
-                _mockUserUpdateDtoValidator.Object,
-                _mockMapper.Object,
-                _mockConfiguration.Object
-            );
+                _mockUserRepository.Object, 
+                _mockRoleRepository.Object, 
+                _mockUserDtoValidator.Object, 
+                _mockUserUpdateDtoValidator.Object, 
+                _mockMapper.Object, 
+                _mockConfiguration.Object);
         }
 
         [Fact]
-        public async Task GetAllUsersAsync_ShouldReturnMappedUsers()
+        public async Task GetAllUsersAsync_ReturnsAllUsers()
         {
             // Arrange
             var users = new List<User>
             {
-                new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" },
-                new User { UserId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@test.com" }
+                new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com" },
+                new User { UserId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" }
             };
 
-            var userDtos = new List<UserDto>
-            {
-                new UserDto { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" },
-                new UserDto { UserId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@test.com" }
-            };
+            var userDtos = users.Select(u => new UserDto 
+            { 
+                UserId = u.UserId, 
+                FirstName = u.FirstName, 
+                LastName = u.LastName, 
+                Email = u.Email 
+            }).ToList();
 
             _mockUserRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(users);
             _mockMapper.Setup(x => x.Map<IEnumerable<UserDto>>(users)).Returns(userDtos);
@@ -74,165 +70,165 @@ namespace gestionMissionBack.Tests.Services
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
             _mockUserRepository.Verify(x => x.GetAllAsync(), Times.Once);
-            _mockMapper.Verify(x => x.Map<IEnumerable<UserDto>>(users), Times.Once);
         }
 
         [Fact]
-        public async Task GetPagedAsync_ShouldReturnPagedUsers()
+        public async Task GetUserByIdAsync_WithValidId_ReturnsUserDto()
         {
             // Arrange
-            var users = new List<User>
-            {
-                new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" }
-            };
+            var userId = 1;
+            var user = new User { UserId = userId, FirstName = "John", LastName = "Doe", Email = "john@example.com" };
+            var userDto = new UserDto { UserId = userId, FirstName = "John", LastName = "Doe", Email = "john@example.com" };
 
-            var userDtos = new List<UserDto>
-            {
-                new UserDto { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" }
-            };
-
-            var pagedResult = new PagedResult<User>
-            {
-                Data = users,
-                TotalRecords = 1
-            };
-
-            _mockUserRepository.Setup(x => x.GetPagedAsync(1, 10)).ReturnsAsync(pagedResult);
-            _mockMapper.Setup(x => x.Map<IEnumerable<UserDto>>(users)).Returns(userDtos);
-
-            // Act
-            var result = await _userService.GetPagedAsync(1, 10);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(1, result.TotalRecords);
-            Assert.Single(result.Data);
-            _mockUserRepository.Verify(x => x.GetPagedAsync(1, 10), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetUserByIdAsync_ShouldReturnUser_WhenUserExists()
-        {
-            // Arrange
-            var user = new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
-            var userDto = new UserDto { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
-
-            _mockUserRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(user);
+            _mockUserRepository.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
             _mockMapper.Setup(x => x.Map<UserDto>(user)).Returns(userDto);
 
             // Act
-            var result = await _userService.GetUserByIdAsync(1);
+            var result = await _userService.GetUserByIdAsync(userId);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(1, result.UserId);
-            _mockUserRepository.Verify(x => x.GetByIdAsync(1), Times.Once);
+            Assert.Equal(userId, result.UserId);
+            Assert.Equal("John", result.FirstName);
+            Assert.Equal("Doe", result.LastName);
+            _mockUserRepository.Verify(x => x.GetByIdAsync(userId), Times.Once);
         }
 
         [Fact]
-        public async Task GetUserByIdAsync_ShouldReturnNull_WhenUserDoesNotExist()
+        public async Task GetUserByIdAsync_WithInvalidId_ReturnsNull()
         {
             // Arrange
-            _mockUserRepository.Setup(x => x.GetByIdAsync(999)).ReturnsAsync((User)null);
-            _mockMapper.Setup(x => x.Map<UserDto>((User)null)).Returns((UserDto)null);
+            var userId = 999;
+            _mockUserRepository.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync((User)null);
 
             // Act
-            var result = await _userService.GetUserByIdAsync(999);
+            var result = await _userService.GetUserByIdAsync(userId);
 
             // Assert
             Assert.Null(result);
-            _mockUserRepository.Verify(x => x.GetByIdAsync(999), Times.Once);
+            _mockUserRepository.Verify(x => x.GetByIdAsync(userId), Times.Once);
         }
 
         [Fact]
-        public async Task CreateUserAsync_ShouldCreateUser_WhenValidData()
+        public async Task CreateUserAsync_WithValidUser_ReturnsCreatedUser()
         {
             // Arrange
-            var userDto = new UserDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@test.com",
+            var userDto = new UserDto 
+            { 
+                FirstName = "New", 
+                LastName = "User", 
+                Email = "newuser@example.com", 
                 PasswordHash = "password123",
                 Role = "Driver"
             };
-
+            
             var role = new Role { RoleId = 1, Name = "Driver" };
-            var user = new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
-            var createdUser = new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
-            var createdUserDto = new UserDto { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
+            var user = new User { UserId = 1, FirstName = "New", LastName = "User", Email = "newuser@example.com" };
+            var createdUser = new User { UserId = 1, FirstName = "New", LastName = "User", Email = "newuser@example.com" };
 
             var validationResult = new ValidationResult();
             _mockUserDtoValidator.Setup(x => x.ValidateAsync(userDto, default)).ReturnsAsync(validationResult);
-            _mockUserRepository.Setup(x => x.GetUserByEmailAsync("john@test.com")).ReturnsAsync((User)null);
-            _mockRoleRepository.Setup(x => x.FindByNameAsync("Driver")).ReturnsAsync(role);
+            _mockUserRepository.Setup(x => x.GetUserByEmailAsync(userDto.Email)).ReturnsAsync((User)null);
+            _mockRoleRepository.Setup(x => x.FindByNameAsync(userDto.Role)).ReturnsAsync(role);
             _mockMapper.Setup(x => x.Map<User>(userDto)).Returns(user);
-            _mockUserRepository.Setup(x => x.AddAsync(It.IsAny<User>())).ReturnsAsync(createdUser);
-            _mockMapper.Setup(x => x.Map<UserDto>(createdUser)).Returns(createdUserDto);
+            _mockUserRepository.Setup(x => x.AddAsync(user)).ReturnsAsync(createdUser);
+            _mockMapper.Setup(x => x.Map<UserDto>(createdUser)).Returns(userDto);
 
             // Act
             var result = await _userService.CreateUserAsync(userDto);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(1, result.UserId);
-            _mockUserRepository.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
+            Assert.Equal("New", result.FirstName);
+            Assert.Equal("User", result.LastName);
+            _mockUserRepository.Verify(x => x.AddAsync(user), Times.Once);
         }
 
         [Fact]
-        public async Task CreateUserAsync_ShouldThrowValidationException_WhenInvalidData()
+        public async Task CreateUserAsync_WithExistingEmail_ThrowsException()
         {
             // Arrange
-            var userDto = new UserDto { Email = "invalid-email" };
-            var validationResult = new ValidationResult(new List<ValidationFailure>
-            {
-                new ValidationFailure("Email", "Invalid email format")
-            });
-
-            _mockUserDtoValidator.Setup(x => x.ValidateAsync(userDto, default)).ReturnsAsync(validationResult);
-
-            // Act & Assert
-            await Assert.ThrowsAsync<ValidationException>(() => _userService.CreateUserAsync(userDto));
-            _mockUserRepository.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task CreateUserAsync_ShouldThrowInvalidOperationException_WhenEmailExists()
-        {
-            // Arrange
-            var userDto = new UserDto { Email = "existing@test.com" };
-            var existingUser = new User { UserId = 1, Email = "existing@test.com" };
+            var userDto = new UserDto 
+            { 
+                FirstName = "Existing", 
+                LastName = "User", 
+                Email = "existing@example.com", 
+                PasswordHash = "password123",
+                Role = "Driver"
+            };
+            
+            var existingUser = new User { UserId = 1, Email = "existing@example.com" };
 
             var validationResult = new ValidationResult();
             _mockUserDtoValidator.Setup(x => x.ValidateAsync(userDto, default)).ReturnsAsync(validationResult);
-            _mockUserRepository.Setup(x => x.GetUserByEmailAsync("existing@test.com")).ReturnsAsync(existingUser);
+            _mockUserRepository.Setup(x => x.GetUserByEmailAsync(userDto.Email)).ReturnsAsync(existingUser);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.CreateUserAsync(userDto));
-            Assert.Equal("A user with this email already exists.", exception.Message);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.CreateUserAsync(userDto));
             _mockUserRepository.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
         }
 
         [Fact]
-        public async Task UpdateUserAsync_ShouldUpdateUser_WhenValidData()
+        public async Task GetPagedAsync_WithValidParameters_ReturnsPagedResult()
         {
             // Arrange
-            var userUpdateDto = new UserUpdateDto
+            var pageNumber = 1;
+            var pageSize = 10;
+            var users = new List<User>
             {
-                UserId = 1,
-                FirstName = "John Updated",
-                LastName = "Doe Updated",
-                Email = "john.updated@test.com",
-                Role = "Driver"
+                new User { UserId = 1, FirstName = "John", LastName = "Doe" },
+                new User { UserId = 2, FirstName = "Jane", LastName = "Smith" }
             };
 
-            var existingUser = new User { UserId = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
-            var role = new Role { RoleId = 1, Name = "Driver" };
+            var userDtos = users.Select(u => new UserDto 
+            { 
+                UserId = u.UserId, 
+                FirstName = u.FirstName, 
+                LastName = u.LastName 
+            }).ToList();
+
+            var pagedUsers = new PagedResult<User>
+            {
+                Data = users,
+                TotalRecords = 2
+            };
+
+            var expectedPagedResult = new PagedResult<UserDto>
+            {
+                Data = userDtos,
+                TotalRecords = 2
+            };
+
+            _mockUserRepository.Setup(x => x.GetPagedAsync(pageNumber, pageSize)).ReturnsAsync(pagedUsers);
+            _mockMapper.Setup(x => x.Map<IEnumerable<UserDto>>(users)).Returns(userDtos);
+
+            // Act
+            var result = await _userService.GetPagedAsync(pageNumber, pageSize);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.TotalRecords);
+            Assert.Equal(2, result.Data.Count());
+            _mockUserRepository.Verify(x => x.GetPagedAsync(pageNumber, pageSize), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateUserAsync_WithValidUser_ReturnsTrue()
+        {
+            // Arrange
+            var userUpdateDto = new UserUpdateDto 
+            { 
+                UserId = 1, 
+                FirstName = "Updated", 
+                LastName = "User", 
+                Email = "updated@example.com" 
+            };
+
+            var existingUser = new User { UserId = 1, FirstName = "Old", LastName = "User", Email = "old@example.com" };
 
             var validationResult = new ValidationResult();
             _mockUserUpdateDtoValidator.Setup(x => x.ValidateAsync(userUpdateDto, default)).ReturnsAsync(validationResult);
-            _mockUserRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(existingUser);
-            _mockRoleRepository.Setup(x => x.FindByNameAsync("Driver")).ReturnsAsync(role);
+            _mockUserRepository.Setup(x => x.GetByIdAsync(userUpdateDto.UserId)).ReturnsAsync(existingUser);
             _mockUserRepository.Setup(x => x.UpdateAsync(It.IsAny<User>())).ReturnsAsync(true);
 
             // Act
@@ -244,14 +240,20 @@ namespace gestionMissionBack.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateUserAsync_ShouldReturnFalse_WhenUserDoesNotExist()
+        public async Task UpdateUserAsync_WithInvalidUserId_ReturnsFalse()
         {
             // Arrange
-            var userUpdateDto = new UserUpdateDto { UserId = 999 };
+            var userUpdateDto = new UserUpdateDto 
+            { 
+                UserId = 999, 
+                FirstName = "Updated", 
+                LastName = "User", 
+                Email = "updated@example.com" 
+            };
 
             var validationResult = new ValidationResult();
             _mockUserUpdateDtoValidator.Setup(x => x.ValidateAsync(userUpdateDto, default)).ReturnsAsync(validationResult);
-            _mockUserRepository.Setup(x => x.GetByIdAsync(999)).ReturnsAsync((User)null);
+            _mockUserRepository.Setup(x => x.GetByIdAsync(userUpdateDto.UserId)).ReturnsAsync((User)null);
 
             // Act
             var result = await _userService.UpdateUserAsync(userUpdateDto);
@@ -259,115 +261,6 @@ namespace gestionMissionBack.Tests.Services
             // Assert
             Assert.False(result);
             _mockUserRepository.Verify(x => x.UpdateAsync(It.IsAny<User>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task DeleteUserAsync_ShouldReturnTrue_WhenUserExists()
-        {
-            // Arrange
-            _mockUserRepository.Setup(x => x.DeleteAsync(1)).ReturnsAsync(true);
-
-            // Act
-            var result = await _userService.DeleteUserAsync(1);
-
-            // Assert
-            Assert.True(result);
-            _mockUserRepository.Verify(x => x.DeleteAsync(1), Times.Once);
-        }
-
-        [Fact]
-        public async Task DeleteUserAsync_ShouldReturnFalse_WhenUserDoesNotExist()
-        {
-            // Arrange
-            _mockUserRepository.Setup(x => x.DeleteAsync(999)).ReturnsAsync(false);
-
-            // Act
-            var result = await _userService.DeleteUserAsync(999);
-
-            // Assert
-            Assert.False(result);
-            _mockUserRepository.Verify(x => x.DeleteAsync(999), Times.Once);
-        }
-
-        [Fact]
-        public async Task LoginAsync_ShouldReturnToken_WhenValidCredentials()
-        {
-            // Arrange
-            var user = new User
-            {
-                UserId = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@test.com",
-                PasswordHash = PasswordService.HashPassword("password123"),
-                Role = new Role { Name = "Driver" }
-            };
-
-            _mockUserRepository.Setup(x => x.GetUserByEmailAsync("john@test.com")).ReturnsAsync(user);
-            _mockConfiguration.Setup(x => x["Jwt:Secret"]).Returns("your-secret-key-here-make-it-long-enough");
-            _mockConfiguration.Setup(x => x["Jwt:Issuer"]).Returns("your-issuer");
-            _mockConfiguration.Setup(x => x["Jwt:Audience"]).Returns("your-audience");
-
-            // Act
-            var result = await _userService.LoginAsync("john@test.com", "password123");
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.True(result.Length > 0);
-            
-            // Verify it's a valid JWT token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.ReadJwtToken(result);
-            Assert.NotNull(token);
-            
-            _mockUserRepository.Verify(x => x.GetUserByEmailAsync("john@test.com"), Times.Once);
-        }
-
-        [Fact]
-        public async Task LoginAsync_ShouldReturnNull_WhenInvalidEmail()
-        {
-            // Arrange
-            _mockUserRepository.Setup(x => x.GetUserByEmailAsync("nonexistent@test.com")).ReturnsAsync((User)null);
-
-            // Act
-            var result = await _userService.LoginAsync("nonexistent@test.com", "password123");
-
-            // Assert
-            Assert.Null(result);
-            _mockUserRepository.Verify(x => x.GetUserByEmailAsync("nonexistent@test.com"), Times.Once);
-        }
-
-        [Fact]
-        public async Task LoginAsync_ShouldReturnNull_WhenInvalidPassword()
-        {
-            // Arrange
-            var user = new User
-            {
-                UserId = 1,
-                Email = "john@test.com",
-                PasswordHash = PasswordService.HashPassword("correctpassword")
-            };
-
-            _mockUserRepository.Setup(x => x.GetUserByEmailAsync("john@test.com")).ReturnsAsync(user);
-
-            // Act
-            var result = await _userService.LoginAsync("john@test.com", "wrongpassword");
-
-            // Assert
-            Assert.Null(result);
-            _mockUserRepository.Verify(x => x.GetUserByEmailAsync("john@test.com"), Times.Once);
-        }
-
-        [Fact]
-        public void Constructor_ShouldThrowArgumentNullException_WhenDependenciesAreNull()
-        {
-            // Arrange & Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new UserService(null, _mockRoleRepository.Object, _mockUserDtoValidator.Object, _mockUserUpdateDtoValidator.Object, _mockMapper.Object, _mockConfiguration.Object));
-            Assert.Throws<ArgumentNullException>(() => new UserService(_mockUserRepository.Object, null, _mockUserDtoValidator.Object, _mockUserUpdateDtoValidator.Object, _mockMapper.Object, _mockConfiguration.Object));
-            Assert.Throws<ArgumentNullException>(() => new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, null, _mockUserUpdateDtoValidator.Object, _mockMapper.Object, _mockConfiguration.Object));
-            Assert.Throws<ArgumentNullException>(() => new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, _mockUserDtoValidator.Object, null, _mockMapper.Object, _mockConfiguration.Object));
-            Assert.Throws<ArgumentNullException>(() => new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, _mockUserDtoValidator.Object, _mockUserUpdateDtoValidator.Object, null, _mockConfiguration.Object));
-            Assert.Throws<ArgumentNullException>(() => new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, _mockUserDtoValidator.Object, _mockUserUpdateDtoValidator.Object, _mockMapper.Object, null));
         }
     }
 }

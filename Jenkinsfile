@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        any // Utiliser n'importe quel agent disponible
+        // Ou spécifier un label si vous en avez un
+        // label 'windows' // Décommentez si vous avez un agent Windows
+    }
     
     environment {
         DOCKER_IMAGE_BACKEND = 'projetpfe-backend'
