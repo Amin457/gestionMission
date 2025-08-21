@@ -6,6 +6,7 @@ pipeline {
         DOCKER_IMAGE_FRONTEND = 'projetpfe-frontend'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         DOCKER_REGISTRY = 'docker.io/aminemelliti' // Change this to your registry
+        IS_WINDOWS = "${env.OS == 'Windows_NT'}"
     }
     
     stages {
@@ -13,6 +14,7 @@ pipeline {
             steps {
                 checkout scm
                 echo "Checked out code from ${env.GIT_BRANCH}"
+                echo "Running on Windows: ${IS_WINDOWS}"
             }
         }
         
@@ -23,10 +25,18 @@ pipeline {
                         echo "Building .NET Backend..."
                         
                         // Restore packages
-                        bat 'dotnet restore'
+                        if (IS_WINDOWS) {
+                            bat 'dotnet restore'
+                        } else {
+                            sh 'dotnet restore'
+                        }
                         
                         // Build the solution
-                        bat 'dotnet build --configuration Release --no-restore'
+                        if (IS_WINDOWS) {
+                            bat 'dotnet build --configuration Release --no-restore'
+                        } else {
+                            sh 'dotnet build --configuration Release --no-restore'
+                        }
                         
                         echo "Backend build completed successfully"
                     }
@@ -40,7 +50,11 @@ pipeline {
                     script {
                         echo "Running backend tests..."
                         
-                        bat 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
+                        if (IS_WINDOWS) {
+                            bat 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
+                        } else {
+                            sh 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
+                        }
                         
                         echo "Backend tests completed"
                     }
@@ -54,7 +68,6 @@ pipeline {
             }
         }
 
-        
         stage('Build Frontend') {
             steps {
                 dir('gestionMissionFront') {
@@ -62,10 +75,18 @@ pipeline {
                         echo "Building Angular Frontend..."
                         
                         // Install dependencies
-                        bat 'npm ci'
+                        if (IS_WINDOWS) {
+                            bat 'npm ci'
+                        } else {
+                            sh 'npm ci'
+                        }
                         
                         // Build the application
-                        bat 'npm run build'
+                        if (IS_WINDOWS) {
+                            bat 'npm run build'
+                        } else {
+                            sh 'npm run build'
+                        }
                         
                         echo "Frontend build completed successfully"
                     }
@@ -73,65 +94,29 @@ pipeline {
             }
         }
         
-        // stage('Test Frontend') {
-        //     steps {
-        //         dir('gestionMissionFront') {
-        //             script {
-        //                 echo "Running frontend tests..."
-                        
-        //                 // Run unit tests
-        //                 bat 'npm test -- --watch=false --browsers=ChromeHeadless --code-coverage'
-                        
-        //                 echo "Frontend tests completed"
-        //             }
-        //         }
-        //     }
-        //     post {
-        //         always {
-        //             // Publish coverage reports
-        //             publishHTML([
-        //                 allowMissing: false,
-        //                 alwaysLinkToLastBuild: true,
-        //                 keepAll: true,
-        //                 reportDir: 'coverage',
-        //                 reportFiles: 'index.html',
-        //                 reportName: 'Frontend Coverage Report'
-        //             ])
-        //         }
-        //     }
-        // }
-        
         stage('Build Docker Images') {
             steps {
                 script {
                     echo "Building Docker images..."
                     
                     // Build backend image
-                    bat "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
+                    if (IS_WINDOWS) {
+                        bat "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
+                    } else {
+                        sh "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
+                    }
                     
                     // Build frontend image
-                    bat "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
+                    if (IS_WINDOWS) {
+                        bat "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
+                    } else {
+                        sh "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
+                    }
                     
                     echo "Docker images built successfully"
                 }
             }
         }
-        
-        // stage('Test Docker Images') {
-        //     steps {
-        //         script {
-        //             echo "Testing Docker images..."
-        //             
-        //             // Test backend container by running it and checking if it starts properly
-        //             bat "docker run --rm -d --name test-backend ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
-        //             bat "timeout /t 10"
-        //             bat "docker logs test-backend"
-        //             bat "docker stop test-backend"
-        //             
-        //             echo "Docker image tests completed"
-        //         }
-        //     }
-        // }
         
         stage('Push to Registry') {
             when {
@@ -146,12 +131,21 @@ pipeline {
                     echo "Pushing images to registry..."
                     
                     // Tag images for registry
-                    bat "docker tag ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
-                    bat "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
-                    
-                    // Push to registry (uncomment when you have a registry)
-                    bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
-                    bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                    if (IS_WINDOWS) {
+                        bat "docker tag ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                        bat "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                        
+                        // Push to registry (uncomment when you have a registry)
+                        bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                        bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                    } else {
+                        sh "docker tag ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                        sh "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                        
+                        // Push to registry (uncomment when you have a registry)
+                        sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
+                        sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
+                    }
                     
                     echo "Images pushed to registry successfully"
                 }
@@ -170,19 +164,39 @@ pipeline {
                     echo "Deploying with Docker Compose and monitoring..."
                     
                     // Stop existing containers
-                    bat "docker-compose down"
+                    if (IS_WINDOWS) {
+                        bat "docker-compose down"
+                    } else {
+                        sh "docker-compose down"
+                    }
                     
                     // Pull latest images
-                    bat "docker-compose pull"
+                    if (IS_WINDOWS) {
+                        bat "docker-compose pull"
+                    } else {
+                        sh "docker-compose pull"
+                    }
                     
                     // Start services with monitoring
-                    bat "docker-compose up -d"
+                    if (IS_WINDOWS) {
+                        bat "docker-compose up -d"
+                    } else {
+                        sh "docker-compose up -d"
+                    }
                     
                     // Wait for services to be healthy
-                    bat "timeout /t 30"
+                    if (IS_WINDOWS) {
+                        bat "timeout /t 30"
+                    } else {
+                        sh "sleep 30"
+                    }
                     
                     // Check service status
-                    bat "docker-compose ps"
+                    if (IS_WINDOWS) {
+                        bat "docker-compose ps"
+                    } else {
+                        sh "docker-compose ps"
+                    }
                     
                     echo "Deployment completed successfully"
                 }
@@ -201,16 +215,32 @@ pipeline {
                     echo "Setting up monitoring and observability..."
                     
                     // Wait for monitoring services to be ready
-                    bat "timeout /t 45"
+                    if (IS_WINDOWS) {
+                        bat "timeout /t 45"
+                    } else {
+                        sh "sleep 45"
+                    }
                     
                     // Verify monitoring services
-                    bat "docker-compose ps"
+                    if (IS_WINDOWS) {
+                        bat "docker-compose ps"
+                    } else {
+                        sh "docker-compose ps"
+                    }
                     
                     // Check Prometheus health
-                    bat "curl -f http://localhost:9090/-/healthy || echo 'Prometheus not ready yet'"
+                    if (IS_WINDOWS) {
+                        bat "curl -f http://localhost:9090/-/healthy || echo 'Prometheus not ready yet'"
+                    } else {
+                        sh "curl -f http://localhost:9090/-/healthy || echo 'Prometheus not ready yet'"
+                    }
                     
                     // Check Grafana health
-                    bat "curl -f http://localhost:3001/api/health || echo 'Grafana not ready yet'"
+                    if (IS_WINDOWS) {
+                        bat "curl -f http://localhost:3001/api/health || echo 'Grafana not ready yet'"
+                    } else {
+                        sh "curl -f http://localhost:3001/api/health || echo 'Grafana not ready yet'"
+                    }
                     
                     echo "Monitoring setup completed"
                 }
@@ -229,15 +259,29 @@ pipeline {
                     echo "Performing comprehensive health checks..."
                     
                     // Check application health
-                    bat "curl -f http://localhost:5000/health || echo 'Backend health check failed'"
-                    bat "curl -f http://localhost:3000 || echo 'Frontend health check failed'"
+                    if (IS_WINDOWS) {
+                        bat "curl -f http://localhost:5000/health || echo 'Backend health check failed'"
+                        bat "curl -f http://localhost:3000 || echo 'Frontend health check failed'"
+                    } else {
+                        sh "curl -f http://localhost:5000/health || echo 'Backend health check failed'"
+                        sh "curl -f http://localhost:3000 || echo 'Frontend health check failed'"
+                    }
                     
                     // Check database connectivity
-                    bat "docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || echo 'Database health check failed'"
+                    if (IS_WINDOWS) {
+                        bat "docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || echo 'Database health check failed'"
+                    } else {
+                        sh "docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || echo 'Database health check failed'"
+                    }
                     
                     // Check monitoring endpoints
-                    bat "curl -f http://localhost:9100/metrics || echo 'Node exporter not accessible'"
-                    bat "curl -f http://localhost:8080/metrics || echo 'cAdvisor not accessible'"
+                    if (IS_WINDOWS) {
+                        bat "curl -f http://localhost:9100/metrics || echo 'Node exporter not accessible'"
+                        bat "curl -f http://localhost:8080/metrics || echo 'cAdvisor not accessible'"
+                    } else {
+                        sh "curl -f http://localhost:9100/metrics || echo 'Node exporter not accessible'"
+                        sh "curl -f http://localhost:8080/metrics || echo 'cAdvisor not accessible'"
+                    }
                     
                     echo "Health checks completed"
                 }
@@ -248,10 +292,18 @@ pipeline {
     post {
         always {
             // Clean up Docker images
-            bat "docker image prune -f"
+            if (IS_WINDOWS) {
+                bat "docker image prune -f"
+            } else {
+                sh "docker image prune -f"
+            }
             
             // Clean up containers
-            bat "docker container prune -f"
+            if (IS_WINDOWS) {
+                bat "docker container prune -f"
+            } else {
+                sh "docker container prune -f"
+            }
             
             echo "Pipeline completed"
         }
