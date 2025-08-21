@@ -1,16 +1,11 @@
 pipeline {
-    agent {
-        any // Utiliser n'importe quel agent disponible
-        // Ou spécifier un label si vous en avez un
-        // label 'windows' // Décommentez si vous avez un agent Windows
-    }
+    agent any
     
     environment {
         DOCKER_IMAGE_BACKEND = 'projetpfe-backend'
         DOCKER_IMAGE_FRONTEND = 'projetpfe-frontend'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         DOCKER_REGISTRY = 'docker.io/aminemelliti' // Change this to your registry
-        IS_WINDOWS = "${env.OS == 'Windows_NT'}"
     }
     
     stages {
@@ -18,7 +13,7 @@ pipeline {
             steps {
                 checkout scm
                 echo "Checked out code from ${env.GIT_BRANCH}"
-                echo "Running on Windows: ${IS_WINDOWS}"
+                echo "Running on Windows: ${env.OS == 'Windows_NT'}"
             }
         }
         
@@ -29,14 +24,14 @@ pipeline {
                         echo "Building .NET Backend..."
                         
                         // Restore packages
-                        if (IS_WINDOWS) {
+                        if (env.OS == 'Windows_NT') {
                             bat 'dotnet restore'
                         } else {
                             sh 'dotnet restore'
                         }
                         
                         // Build the solution
-                        if (IS_WINDOWS) {
+                        if (env.OS == 'Windows_NT') {
                             bat 'dotnet build --configuration Release --no-restore'
                         } else {
                             sh 'dotnet build --configuration Release --no-restore'
@@ -54,7 +49,7 @@ pipeline {
                     script {
                         echo "Running backend tests..."
                         
-                        if (IS_WINDOWS) {
+                        if (env.OS == 'Windows_NT') {
                             bat 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
                         } else {
                             sh 'dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"'
@@ -79,14 +74,14 @@ pipeline {
                         echo "Building Angular Frontend..."
                         
                         // Install dependencies
-                        if (IS_WINDOWS) {
+                        if (env.OS == 'Windows_NT') {
                             bat 'npm ci'
                         } else {
                             sh 'npm ci'
                         }
                         
                         // Build the application
-                        if (IS_WINDOWS) {
+                        if (env.OS == 'Windows_NT') {
                             bat 'npm run build'
                         } else {
                             sh 'npm run build'
@@ -104,14 +99,14 @@ pipeline {
                     echo "Building Docker images..."
                     
                     // Build backend image
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
                     } else {
                         sh "docker build -t ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_BACKEND}:latest ./gestionMissionBack"
                     }
                     
                     // Build frontend image
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
                     } else {
                         sh "docker build -t ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} -t ${DOCKER_IMAGE_FRONTEND}:latest ./gestionMissionFront"
@@ -135,7 +130,7 @@ pipeline {
                     echo "Pushing images to registry..."
                     
                     // Tag images for registry
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker tag ${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}"
                         bat "docker tag ${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}"
                         
@@ -168,35 +163,35 @@ pipeline {
                     echo "Deploying with Docker Compose and monitoring..."
                     
                     // Stop existing containers
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker-compose down"
                     } else {
                         sh "docker-compose down"
                     }
                     
                     // Pull latest images
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker-compose pull"
                     } else {
                         sh "docker-compose pull"
                     }
                     
                     // Start services with monitoring
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker-compose up -d"
                     } else {
                         sh "docker-compose up -d"
                     }
                     
                     // Wait for services to be healthy
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "timeout /t 30"
                     } else {
                         sh "sleep 30"
                     }
                     
                     // Check service status
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker-compose ps"
                     } else {
                         sh "docker-compose ps"
@@ -219,28 +214,28 @@ pipeline {
                     echo "Setting up monitoring and observability..."
                     
                     // Wait for monitoring services to be ready
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "timeout /t 45"
                     } else {
                         sh "sleep 45"
                     }
                     
                     // Verify monitoring services
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker-compose ps"
                     } else {
                         sh "docker-compose ps"
                     }
                     
                     // Check Prometheus health
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "curl -f http://localhost:9090/-/healthy || echo 'Prometheus not ready yet'"
                     } else {
                         sh "curl -f http://localhost:9090/-/healthy || echo 'Prometheus not ready yet'"
                     }
                     
                     // Check Grafana health
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "curl -f http://localhost:3001/api/health || echo 'Grafana not ready yet'"
                     } else {
                         sh "curl -f http://localhost:3001/api/health || echo 'Grafana not ready yet'"
@@ -263,7 +258,7 @@ pipeline {
                     echo "Performing comprehensive health checks..."
                     
                     // Check application health
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "curl -f http://localhost:5000/health || echo 'Backend health check failed'"
                         bat "curl -f http://localhost:3000 || echo 'Frontend health check failed'"
                     } else {
@@ -272,14 +267,14 @@ pipeline {
                     }
                     
                     // Check database connectivity
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || echo 'Database health check failed'"
                     } else {
                         sh "docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || echo 'Database health check failed'"
                     }
                     
                     // Check monitoring endpoints
-                    if (IS_WINDOWS) {
+                    if (env.OS == 'Windows_NT') {
                         bat "curl -f http://localhost:9100/metrics || echo 'Node exporter not accessible'"
                         bat "curl -f http://localhost:8080/metrics || echo 'cAdvisor not accessible'"
                     } else {
@@ -297,14 +292,14 @@ pipeline {
         always {
             script {
                 // Clean up Docker images
-                if (IS_WINDOWS) {
+                if (env.OS == 'Windows_NT') {
                     bat "docker image prune -f"
                 } else {
                     sh "docker image prune -f"
                 }
                 
                 // Clean up containers
-                if (IS_WINDOWS) {
+                if (env.OS == 'Windows_NT') {
                     bat "docker container prune -f"
                 } else {
                     sh "docker container prune -f"
